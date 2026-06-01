@@ -4,17 +4,17 @@ A Python project **designed to orchestrate** a structured, supervised debate bet
 AI agents (**Pro** and **Con**) moderated by a **Parent/Judge** agent that will route
 every message, enforce the rules, and declare a single winner.
 
-> **Status: early development (Phase 6.2b — resource-control & run-safety primitives).**
-> Implemented and tested **offline**: protocol enums/models, JSON config loading,
-> structural message + evidence validation, the 0–5 scoring rubric, the deterministic
-> configured tie-break (6.1), the `ProviderAdapter`/`SearchTool` abstractions with
-> `MockProvider`/`MockSearchTool` (6.2a), and now the **`CostTracker` (estimate-only
-> metrics), `Gatekeeper` (configurable limits), and `Watchdog` (deterministic run-level
-> guard)** (6.2b) — all offline, no network/LLM. **Not implemented yet:** the real
-> Claude CLI provider, real web/`ddgs` search, the Judge/Pro/Con agents, and the full
-> debate runner. **A full debate cannot be run yet**, and no debate has been run — no
-> results, transcripts, or evidence have been produced. The full README is authored in
-> Phase 8.
+> **Status: early development (Phase 6.2c — offline debate orchestration with mocks).**
+> Implemented and tested **offline**: protocol/validation/scoring/tie-break (6.1), the
+> `ProviderAdapter`/`SearchTool` abstractions + `MockProvider`/`MockSearchTool` (6.2a),
+> `CostTracker`/`Gatekeeper`/`Watchdog` (6.2b), and now the **Judge/Pro/Con agents, the
+> parent-mediated `DebateRunner`/session, and `TranscriptWriter`** (6.2c). A short
+> debate can now run **end-to-end with mocks** (deterministic, no network/LLM), and all
+> 13 behavioral contract tests pass. **Not implemented yet:** the **real Claude CLI
+> provider** and **real web/`ddgs` search**, the SDK service, and the CLI. **No real
+> evidence-backed debate has been run** — no committed results, transcripts, logs, or
+> evidence (test artifacts are written only under pytest `tmp_path`). The full README is
+> authored in Phase 8.
 
 ## Planning & design documents
 - [`docs/REQUIREMENTS_AUDIT.md`](docs/REQUIREMENTS_AUDIT.md)

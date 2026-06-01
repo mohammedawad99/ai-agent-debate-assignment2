@@ -158,12 +158,23 @@ gate is **not** unlocked. "Created" ≠ "Reviewed."
 - **xfail contracts converted in 6.2b:** none (provider-timeout, watchdog, retry-exhaustion contracts stay xfail until DebateRunner integrates these primitives in 6.2c)
 - [ ] **Human review** → **ChatGPT approval** → **commit** (Phase 6.2b)
 
-### Phase 6.2c — remaining implementation
-- [ ] Agents (Judge, Pro, Con) + DebateSession/DebateRunner + regeneration loop + TranscriptWriter *(6.2c — wires in CostTracker/Gatekeeper/Watchdog)*
-- [ ] Real provider adapter (Claude CLI subprocess) + real search adapter (ddgs) *(later)*
-- [ ] SDK layer + CLI that calls only the SDK; cost/resource accounting *(later)*
-**Exit criteria:** All tests green (the 6 remaining xfail contracts converted); gates pass; no hardcoded params.
-**Status:** Phase 6.1 & 6.2a committed; **Phase 6.2b created, review/commit pending** — not yet reviewed/complete.
+### Phase 6.2c — Offline debate orchestration with mocks *(created; review/commit pending)*
+- [x] `orchestration/session.py` *(`RunStatus`, `DebateSessionResult`, `ProtocolFailure`; failed runs preserve messages/errors/cost)*
+- [x] `agents/base.py` + `agents/debate_agent.py` *(`DebateAgent`, `ProAgent`, `ConAgent` — no opponent reference)*
+- [x] `agents/judge.py` *(`JudgeAgent` — ResponseValidator + deterministic collapse/drift markers; scoring + configured tie-break)*
+- [x] `orchestration/runner.py` *(`DebateRunner` — parent-mediated routing, regeneration ≤ retry_cap, failed-protocol on exhaustion/timeout/watchdog; wires CostTracker/Gatekeeper/Watchdog)*
+- [x] `results/transcript_writer.py` *(`TranscriptWriter` — writes only to an explicit output dir; tests use tmp_path; no committed artifacts)*
+- [x] Unit tests (session result, transcript writer, agents, debate runner) + contract conversions
+- **Converted xfail → real (6):** judge selects exactly one winner · agreement collapse rejected/regenerated · off-side drift rejected/regenerated · retry exhaustion → failed run · provider timeout handled → failed run · watchdog → failed run
+- **Remaining strict-xfail contracts:** none (all 13 contracts now real and passing)
+- [ ] **Human review** → **ChatGPT approval** → **commit** (Phase 6.2c)
+
+### Phase 6.3+ — real adapters & interface (later)
+- [ ] Real provider adapter (Claude CLI subprocess, timeouts) behind `ProviderAdapter`
+- [ ] Real search adapter (`ddgs`) behind `SearchTool`
+- [ ] SDK service layer + thin CLI that calls only the SDK; project-local prompts
+**Exit criteria:** All tests green; gates pass; no hardcoded params; real evidence-backed run reserved for Phase 7.
+**Status:** Phase 6.1 / 6.2a / 6.2b committed; **Phase 6.2c created, review/commit pending** — not yet reviewed/complete. Offline orchestration only; no real provider/search; no committed results/evidence.
 
 ---
 
