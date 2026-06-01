@@ -169,12 +169,20 @@ gate is **not** unlocked. "Created" ≠ "Reviewed."
 - **Remaining strict-xfail contracts:** none (all 13 contracts now real and passing)
 - [ ] **Human review** → **ChatGPT approval** → **commit** (Phase 6.2c)
 
-### Phase 6.3+ — real adapters & interface (later)
+### Phase 6.3a — Offline mock SDK + thin CLI *(created; review/commit pending)*
+- [x] `sdk/service.py` *(`run_mock_debate` — wires mocks + DebateRunner; returns DebateSessionResult; writes only when output_dir given)*
+- [x] `cli/main.py` *(thin `argparse` wrapper; `agent-debate mock-run` with `--turns-per-side`/`--session-id`/`--output-dir`; calls SDK only)*
+- [x] Console entry point `agent-debate` → `agent_debate.cli.main:main` *(already wired in pyproject.toml)*
+- [x] Unit tests (`test_sdk_service.py`, `test_cli.py` — success, no-default-artifacts, output-dir under tmp_path, CLI delegates to SDK, failed→exit 1)
+- [x] README offline mock CLI usage/status
+- [ ] **Human review** → **ChatGPT approval** → **commit** (Phase 6.3a)
+
+### Phase 6.3b+ — real adapters (later)
 - [ ] Real provider adapter (Claude CLI subprocess, timeouts) behind `ProviderAdapter`
 - [ ] Real search adapter (`ddgs`) behind `SearchTool`
-- [ ] SDK service layer + thin CLI that calls only the SDK; project-local prompts
+- [ ] Wire a real-mode SDK path + CLI flag; project-local prompts
 **Exit criteria:** All tests green; gates pass; no hardcoded params; real evidence-backed run reserved for Phase 7.
-**Status:** Phase 6.1 / 6.2a / 6.2b committed; **Phase 6.2c created, review/commit pending** — not yet reviewed/complete. Offline orchestration only; no real provider/search; no committed results/evidence.
+**Status:** Phase 6.1 / 6.2a / 6.2b / 6.2c committed; **Phase 6.3a created, review/commit pending** — not yet reviewed/complete. Offline mock SDK/CLI only; no real provider/search; no committed results/evidence.
 
 ---
 

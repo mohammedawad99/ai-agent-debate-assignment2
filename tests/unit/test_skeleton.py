@@ -42,13 +42,13 @@ def test_version_is_exposed() -> None:
     assert isinstance(agent_debate.__version__, str)
 
 
-def test_cli_entrypoint_is_placeholder() -> None:
-    """The CLI entry point exists but is an explicit, honest placeholder.
+def test_cli_entrypoint_is_wired() -> None:
+    """The CLI entry point exists and is wired to argparse (Phase 6.3a).
 
-    Asserting NotImplementedError documents that the CLI is intentionally not
-    built yet — it does not imply working functionality.
+    With no subcommand, argparse exits (SystemExit) — confirming the real CLI
+    rather than the old placeholder. Behavior is covered in tests/unit/test_cli.py.
     """
     from agent_debate.cli.main import main
 
-    with pytest.raises(NotImplementedError):
-        main()
+    with pytest.raises(SystemExit):
+        main([])

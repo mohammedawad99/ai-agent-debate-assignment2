@@ -4,17 +4,25 @@ A Python project **designed to orchestrate** a structured, supervised debate bet
 AI agents (**Pro** and **Con**) moderated by a **Parent/Judge** agent that will route
 every message, enforce the rules, and declare a single winner.
 
-> **Status: early development (Phase 6.2c — offline debate orchestration with mocks).**
-> Implemented and tested **offline**: protocol/validation/scoring/tie-break (6.1), the
-> `ProviderAdapter`/`SearchTool` abstractions + `MockProvider`/`MockSearchTool` (6.2a),
-> `CostTracker`/`Gatekeeper`/`Watchdog` (6.2b), and now the **Judge/Pro/Con agents, the
-> parent-mediated `DebateRunner`/session, and `TranscriptWriter`** (6.2c). A short
-> debate can now run **end-to-end with mocks** (deterministic, no network/LLM), and all
-> 13 behavioral contract tests pass. **Not implemented yet:** the **real Claude CLI
-> provider** and **real web/`ddgs` search**, the SDK service, and the CLI. **No real
-> evidence-backed debate has been run** — no committed results, transcripts, logs, or
-> evidence (test artifacts are written only under pytest `tmp_path`). The full README is
-> authored in Phase 8.
+> **Status: early development (Phase 6.3a — offline mock SDK + CLI).**
+> Implemented and tested **offline**: protocol/validation/scoring/tie-break (6.1),
+> provider/search abstractions + mocks (6.2a), `CostTracker`/`Gatekeeper`/`Watchdog`
+> (6.2b), the Judge/Pro/Con agents + parent-mediated `DebateRunner` + `TranscriptWriter`
+> (6.2c), and now an **SDK service (`run_mock_debate`) and a thin `agent-debate` CLI**
+> that run the debate **in offline mock mode** (6.3a). All 13 behavioral contract tests
+> pass. **Not implemented yet:** the **real Claude CLI provider** and **real web/`ddgs`
+> search**. **No real evidence-backed debate has been run** — the CLI runs only the mock
+> path; no committed results/transcripts/logs/evidence (artifacts are written only when
+> `--output-dir` is given, and tests use pytest `tmp_path`). The full README is authored
+> in Phase 8.
+
+### Offline mock CLI (Phase 6.3a)
+```bash
+uv run agent-debate mock-run --turns-per-side 1
+# add --output-dir <dir> to write transcript/cost artifacts there (never written by default)
+```
+This runs a deterministic offline debate using `MockProvider`/`MockSearchTool` — **no
+real provider, search, network, or LLM**. The real provider/search arrive in Phase 6.3b+.
 
 ## Planning & design documents
 - [`docs/REQUIREMENTS_AUDIT.md`](docs/REQUIREMENTS_AUDIT.md)
