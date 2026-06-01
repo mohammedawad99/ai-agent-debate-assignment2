@@ -127,7 +127,7 @@ gate is **not** unlocked. "Created" ≠ "Reviewed."
 ## Phase 6 — Implementation
 **Goal:** Build features to make the tests pass.
 
-### Phase 6.1 — Offline core slice *(created; review/commit pending)*
+### Phase 6.1 — Offline core slice *(✅ committed: `81eea84`)*
 - [x] Protocol enums + models *(`protocol/enums.py`, `protocol/models.py`)*
 - [x] Config loader *(`config/loader.py` — JSON, relative paths, validated)*
 - [x] JSON/protocol validation *(`validation/protocol_validator.py`)*
@@ -138,18 +138,25 @@ gate is **not** unlocked. "Created" ≠ "Reviewed."
 - [x] Unit tests for all the above + converted contract tests
 - **Converted xfail → real (7):** no direct Pro↔Con routing · invalid JSON → regenerate · missing opponent_claim_id · missing evidence · irrelevant evidence · configured tie-break · prompt-injection cannot override rules
 - **Still xfail (6):** judge selects exactly one winner · agreement collapse · off-side drift · retry exhaustion → failed run · provider timeout · watchdog → failed run
-- [ ] **Human review** → **ChatGPT approval** → **commit** (Phase 6.1)
+- [x] **Human review → ChatGPT approval → committed** *(Phase 6.1 reviewed and pushed as `81eea84` — "Implement offline core protocol validation and scoring")*
 - **NOT implemented yet (later 6.x):** ClaudeCliProvider, DdgsSearchTool, Gatekeeper, JudgeAgent/Pro/Con, full DebateRunner + regeneration loop, Watchdog, SDK service, CLI behavior, cost accounting.
 
-### Phase 6.2+ — remaining implementation
-- [ ] Provider adapter (CLI-subprocess) with timeouts + MockProvider
-- [ ] Search/evidence adapter (ddgs) + MockSearchTool
-- [ ] Gatekeeper (rate/budget/concurrency) + Watchdog
-- [ ] Agents (Pro, Con) + Judge orchestration & routing + regeneration loop
-- [ ] SDK layer + CLI that calls only the SDK
-- [ ] Cost/resource accounting
-**Exit criteria:** All tests green (xfail contracts converted); gates pass; no hardcoded params.
-**Status:** Phase 6.1 created; **review/commit pending** — not yet reviewed/complete.
+### Phase 6.2a — Offline provider/search abstractions *(created; review/commit pending)*
+- [x] `providers/base.py` *(`ProviderAdapter`, `ProviderError`, `ProviderTimeoutError`)*
+- [x] `providers/mock_provider.py` *(`MockProvider` — scripted, call count, deterministic timeout/error; no sleep/network/LLM)*
+- [x] `search/base.py` *(`SearchTool`, `SearchError`)*
+- [x] `search/mock_search.py` *(`MockSearchTool` — relevant/irrelevant/malicious modes, call count, deterministic error; no web/ddgs)*
+- [x] Unit tests for both mocks
+- **xfail contracts converted in 6.2a:** none (all 6 remain — they need the runner/judge/watchdog from 6.2b/6.2c)
+- [ ] **Human review** → **ChatGPT approval** → **commit** (Phase 6.2a)
+
+### Phase 6.2b/6.2c — remaining implementation
+- [ ] Gatekeeper (rate/budget/concurrency) + CostTracker + Watchdog *(6.2b)*
+- [ ] Agents (Judge, Pro, Con) + DebateSession/DebateRunner + regeneration loop + TranscriptWriter *(6.2c)*
+- [ ] Real provider adapter (Claude CLI subprocess) + real search adapter (ddgs) *(later)*
+- [ ] SDK layer + CLI that calls only the SDK; cost/resource accounting *(later)*
+**Exit criteria:** All tests green (the 6 remaining xfail contracts converted); gates pass; no hardcoded params.
+**Status:** Phase 6.1 committed; **Phase 6.2a created, review/commit pending** — not yet reviewed/complete.
 
 ---
 
