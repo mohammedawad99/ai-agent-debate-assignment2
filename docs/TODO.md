@@ -126,16 +126,30 @@ gate is **not** unlocked. "Created" ≠ "Reviewed."
 
 ## Phase 6 — Implementation
 **Goal:** Build features to make the tests pass.
-- [ ] Provider adapter (API key and/or CLI-subprocess) with timeouts
-- [ ] Search/evidence adapter
-- [ ] Gatekeeper (rate/budget/concurrency)
-- [ ] Agents (Pro, Con) + Judge orchestration & routing
-- [ ] JSON protocol + validation + regeneration loop
-- [ ] Scoring, rubric, tie-break, winner selection
-- [ ] Watchdog/keep-alive
+
+### Phase 6.1 — Offline core slice *(created; review/commit pending)*
+- [x] Protocol enums + models *(`protocol/enums.py`, `protocol/models.py`)*
+- [x] Config loader *(`config/loader.py` — JSON, relative paths, validated)*
+- [x] JSON/protocol validation *(`validation/protocol_validator.py`)*
+- [x] Evidence structural validation *(`validation/evidence_validator.py` — untrusted-content rule)*
+- [x] Response validation coordinator *(`validation/response_validator.py`)*
+- [x] ValidationResult + EvidenceStore *(`validation/result.py`, `evidence/store.py`)*
+- [x] Scoring rubric (0–5, sum) + deterministic configured tie-break *(`results/scoring.py`, `results/tie_breaker.py`)*
+- [x] Unit tests for all the above + converted contract tests
+- **Converted xfail → real (7):** no direct Pro↔Con routing · invalid JSON → regenerate · missing opponent_claim_id · missing evidence · irrelevant evidence · configured tie-break · prompt-injection cannot override rules
+- **Still xfail (6):** judge selects exactly one winner · agreement collapse · off-side drift · retry exhaustion → failed run · provider timeout · watchdog → failed run
+- [ ] **Human review** → **ChatGPT approval** → **commit** (Phase 6.1)
+- **NOT implemented yet (later 6.x):** ClaudeCliProvider, DdgsSearchTool, Gatekeeper, JudgeAgent/Pro/Con, full DebateRunner + regeneration loop, Watchdog, SDK service, CLI behavior, cost accounting.
+
+### Phase 6.2+ — remaining implementation
+- [ ] Provider adapter (CLI-subprocess) with timeouts + MockProvider
+- [ ] Search/evidence adapter (ddgs) + MockSearchTool
+- [ ] Gatekeeper (rate/budget/concurrency) + Watchdog
+- [ ] Agents (Pro, Con) + Judge orchestration & routing + regeneration loop
 - [ ] SDK layer + CLI that calls only the SDK
 - [ ] Cost/resource accounting
-**Exit criteria:** All tests green; gates pass; no hardcoded params.
+**Exit criteria:** All tests green (xfail contracts converted); gates pass; no hardcoded params.
+**Status:** Phase 6.1 created; **review/commit pending** — not yet reviewed/complete.
 
 ---
 

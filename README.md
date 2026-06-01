@@ -4,12 +4,15 @@ A Python project **designed to orchestrate** a structured, supervised debate bet
 AI agents (**Pro** and **Con**) moderated by a **Parent/Judge** agent that will route
 every message, enforce the rules, and declare a single winner.
 
-> **Status: early development (Phase 4 — project skeleton).**
-> The package layout, configuration templates, and tooling exist, but the debate
-> orchestration, agents, providers, and search adapters are **not implemented yet**.
-> This README is a placeholder; the full README (problem, setup, usage, architecture,
-> debate flow, screenshots, quality commands, cost/resource awareness, limitations,
-> reproducibility) is authored in Phase 8. No results or evidence have been produced yet.
+> **Status: early development (Phase 6.1 — offline core slice).**
+> Implemented and tested **offline**: protocol enums/models, JSON config loading,
+> structural message validation, evidence structural validation, the 0–5 scoring
+> rubric, and the deterministic configured tie-break. **Not implemented yet:** the
+> real Claude CLI provider, real web/`ddgs` search, the Judge agent, the full debate
+> runner/orchestration, and the watchdog. **A full debate cannot be run yet**, and no
+> debate has been run — no results, transcripts, or evidence have been produced. The
+> full README (problem, setup, usage, architecture, debate flow, screenshots,
+> cost/resource awareness, limitations, reproducibility) is authored in Phase 8.
 
 ## Planning & design documents
 - [`docs/REQUIREMENTS_AUDIT.md`](docs/REQUIREMENTS_AUDIT.md)
@@ -49,11 +52,13 @@ uv run python scripts/check_json_configs.py
 ```
 
 > **Note:** the behavioral **contract tests** in `tests/integration/test_contracts.py`
-> are marked **strict `xfail`** (expected failure) until the Phase 6 implementation
-> exists — they document required behavior in advance (TDD) and do **not** indicate the
-> debate system works yet. Because they are `strict=True`, an unexpected pass fails the
-> quality gate, forcing the marker to be removed and the test converted into a real
-> assertion. No debate has been run; no results/evidence have been produced.
+> use strict `xfail` for TDD. As of **Phase 6.1**, **7** contracts are now real,
+> passing, offline tests (routing, invalid JSON, missing opponent reference, missing
+> evidence, irrelevant evidence, configured tie-break, prompt-injection resistance);
+> the remaining **6** stay strict-`xfail` because they need the full DebateRunner, a
+> real provider, or the watchdog (Phase 6.2+). Strict means an unexpected pass fails
+> the gate, forcing conversion into a real test. No debate has been run; no
+> results/evidence have been produced.
 
 ## License
 MIT.
