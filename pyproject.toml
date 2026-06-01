@@ -1,0 +1,75 @@
+[project]
+name = "agent-debate"
+version = "0.1.0"
+description = "AI Agent Debate System — a parent-mediated, evidence-backed debate orchestrator (Assignment 2)."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+# Runtime dependencies are intentionally empty in the skeleton phase.
+# Real dependencies (e.g. a search adapter such as `ddgs`) are added in later
+# phases, behind the SearchTool/ProviderAdapter abstractions, never hardcoded here.
+dependencies = []
+
+[project.scripts]
+# Placeholder console-script entry point. The CLI is NOT implemented in Phase 4;
+# `agent_debate.cli.main:main` currently raises NotImplementedError on purpose.
+agent-debate = "agent_debate.cli.main:main"
+
+# Dev tooling lives in a dependency group (PEP 735) so `uv sync` installs it by default
+# while keeping the shipped package free of test/lint dependencies.
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=5.0",
+    "ruff>=0.6",
+    "mypy>=1.10",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/agent_debate"]
+
+# ---------------------------------------------------------------------------
+# pytest
+# ---------------------------------------------------------------------------
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+# NOTE: the 85% coverage gate is NOT wired into default addopts yet, so the
+# skeleton test run is not blocked prematurely. Phase 5 will run coverage
+# explicitly via:  uv run pytest --cov=src --cov-report=term-missing --cov-fail-under=85
+
+# ---------------------------------------------------------------------------
+# coverage (planned 85% threshold; enforced when --cov is used)
+# ---------------------------------------------------------------------------
+[tool.coverage.run]
+source = ["src/agent_debate"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+# Planned quality gate (Phase 5). Applies when coverage reporting runs.
+fail_under = 85
+
+# ---------------------------------------------------------------------------
+# ruff (lint + format)
+# ---------------------------------------------------------------------------
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+# ---------------------------------------------------------------------------
+# mypy (lenient in the skeleton phase; tightened later if practical)
+# ---------------------------------------------------------------------------
+[tool.mypy]
+python_version = "3.11"
+ignore_missing_imports = true
+warn_unused_configs = true
+# Intentionally NOT strict yet, so skeleton work is not blocked prematurely.

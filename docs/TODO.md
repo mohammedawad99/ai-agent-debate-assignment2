@@ -88,13 +88,21 @@ gate is **not** unlocked. "Created" ≠ "Reviewed."
 
 ## Phase 4 — Project Skeleton
 **Goal:** Create the buildable structure (still minimal logic where allowed).
-- [ ] `pyproject.toml` + uv setup
-- [ ] Package layout under `src/`
-- [ ] Config files in `config/`
-- [ ] Ruff / formatter / mypy configuration
-- [ ] `.env.example` template (only now, as needed)
-- [ ] Logging scaffold with rotation config
-**Exit criteria:** `uv` install works; ruff runs; package imports cleanly.
+- [x] `pyproject.toml` + uv-compatible metadata *(hatchling, src layout, pytest, pytest-cov w/ planned 85% gate, ruff, lenient mypy, placeholder console script)*
+- [x] Package layout under `src/agent_debate/` *(cli, sdk, orchestration, agents, protocol, validation, providers, search, evidence, config, logging, results, quality — `__init__.py` docstrings only, no logic)*
+- [x] CLI entry-point placeholder *(`cli/main.py` raises NotImplementedError — honest placeholder, no behavior)*
+- [x] Tests skeleton *(`tests/unit`, `tests/integration`, `tests/fixtures`, `conftest.py` placeholder, import-only `test_skeleton.py`)*
+- [x] Config templates in `config/` *(app/debate/agents/providers/search/logging/rate_limits .json — safe defaults, no secrets)*
+- [x] Ruff / formatter / mypy configuration *(in `pyproject.toml`)*
+- [x] `.env.example` template *(placeholders only; `.env` confirmed gitignored)*
+- [x] Logging rotation config *(template in `config/logging.json`; scaffold code is Phase 6)*
+- [x] `README.md` placeholder + `docs/CONFIGURATION.md`
+- [ ] Verify with `uv sync` / `uv run pytest` / `uv run ruff check .` *(report results honestly; tooling availability permitting)*
+- [ ] **Human developer review** of Phase 4 skeleton
+- [ ] **ChatGPT reviewer approval** of Phase 4 skeleton
+- [ ] **Commit** Phase 4 skeleton to Git
+**Exit criteria:** `uv` install works; ruff runs; package imports cleanly — **reviewed per the Review Rule**.
+**Status:** Skeleton created; **review/commit pending** — Phase 4 is *not yet reviewed/complete*, so Phase 5 remains gated. No orchestration/agent/provider/search logic implemented; no results/evidence produced.
 
 ---
 

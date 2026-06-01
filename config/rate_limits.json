@@ -1,0 +1,12 @@
+{
+  "_comment": "Gatekeeper limits + cost proxy. Token figures are ESTIMATES (chars/4), not exact provider billing (FR-17).",
+  "max_provider_calls": 100,
+  "max_search_calls": 50,
+  "max_retries": 2,
+  "max_concurrency": 1,
+  "max_runtime_seconds": 1800,
+  "cost_proxy": {
+    "chars_per_token_estimate": 4,
+    "label": "estimate_not_billing"
+  }
+}

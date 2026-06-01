@@ -1,0 +1,30 @@
+{
+  "_comment": "Debate parameters. Values align with docs/PRD.md, PLAN.md, SCORING_AND_VALIDATION.md.",
+  "topic": "Should university software engineering courses require students to use AI coding agents?",
+  "language": "en",
+  "turns_per_side": {
+    "full": 10,
+    "dev": 3,
+    "budget_fallback": 5
+  },
+  "word_limits": {
+    "child_turn_max_words": 160,
+    "judge_decision_max_words": 400
+  },
+  "retry_cap": 2,
+  "rubric": {
+    "scale_min": 0,
+    "scale_max": 5,
+    "equal_weight": true,
+    "dimensions": [
+      "clarity",
+      "responsiveness",
+      "evidence_quality",
+      "position_consistency",
+      "respectful_tone",
+      "persuasive_force"
+    ]
+  },
+  "final_tie_break_priority": ["con", "pro"],
+  "_final_tie_break_note": "Arbitrary deterministic protocol mechanism to satisfy the no-tie rule; NOT a claim of substantive superiority. Configurable."
+}

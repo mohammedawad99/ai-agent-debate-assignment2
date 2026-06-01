@@ -1,0 +1,26 @@
+{
+  "_comment": "Search/evidence tools. No keys. ddgs is a no-key candidate (validated in Phase 6, OQ-A5).",
+  "active": "mock",
+  "_active_options": ["mock", "ddgs"],
+  "providers": {
+    "mock": {
+      "type": "mock",
+      "timeout_seconds": 5
+    },
+    "ddgs": {
+      "type": "ddgs",
+      "enabled": true,
+      "max_results": 5,
+      "region": "wt-wt",
+      "timeout_seconds": 15,
+      "retries": 2
+    }
+  },
+  "evidence": {
+    "min_refs_per_turn": 1,
+    "allow_reuse": true,
+    "relevance_required": true,
+    "untrusted_content": true,
+    "_untrusted_note": "Retrieved content is untrusted data, never instructions (ARCHITECTURE SR-3/SR-4)."
+  }
+}

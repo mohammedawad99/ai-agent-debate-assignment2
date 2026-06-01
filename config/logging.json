@@ -1,0 +1,20 @@
+{
+  "_comment": "Structured logging with configurable rotation. Secrets are redacted (SR-2).",
+  "level": "INFO",
+  "_level_options": ["DEBUG", "INFO", "WARNING", "ERROR"],
+  "format": "json",
+  "console": true,
+  "file": {
+    "enabled": true,
+    "path": "logs/agent_debate.log",
+    "rotation": {
+      "max_bytes": 1048576,
+      "backup_count": 5
+    }
+  },
+  "jsonl_events": {
+    "enabled": true,
+    "path": "logs/events.jsonl"
+  },
+  "redact_secrets": true
+}

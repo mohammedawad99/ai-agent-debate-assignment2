@@ -1,0 +1,26 @@
+{
+  "_comment": "Provider adapters. NO SECRETS. The CLI provider is login-based (auth handled by the Claude CLI session). The optional API provider reads its key from an environment variable name, never a stored key.",
+  "active": "mock",
+  "_active_options": ["mock", "claude_cli", "api_key"],
+  "providers": {
+    "mock": {
+      "type": "mock",
+      "timeout_seconds": 5
+    },
+    "claude_cli": {
+      "type": "cli_subprocess",
+      "command": ["claude"],
+      "args": ["-p"],
+      "timeout_seconds": 120,
+      "_note": "Configurable command/args. Login-based; no API key required or stored."
+    },
+    "api_key": {
+      "type": "api",
+      "enabled": false,
+      "model": "claude-sonnet-4-6",
+      "api_key_env": "ANTHROPIC_API_KEY",
+      "timeout_seconds": 60,
+      "_note": "Future/optional secondary provider. Key is read from the named env var at runtime, never committed."
+    }
+  }
+}

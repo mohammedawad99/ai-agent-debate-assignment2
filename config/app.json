@@ -1,0 +1,16 @@
+{
+  "_comment": "Top-level wiring template. Safe defaults; no secrets. See docs/CONFIGURATION.md.",
+  "run_mode": "dev",
+  "_run_mode_options": ["dev", "full", "budget"],
+  "provider": "mock",
+  "search": "mock",
+  "output": {
+    "results_dir": "results",
+    "logs_dir": "logs",
+    "evidence_subdir": "results/evidence",
+    "transcript_jsonl": "results/debate_transcript.jsonl",
+    "transcript_markdown": "results/debate_transcript.md",
+    "final_judgment_json": "results/final_judgment.json",
+    "cost_report": "results/cost_report.json"
+  }
+}

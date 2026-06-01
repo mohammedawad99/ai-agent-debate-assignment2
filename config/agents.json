@@ -1,0 +1,22 @@
+{
+  "_comment": "Agent role definitions. prompt_template paths point to project-local prompts (R-21), authored in Phase 6. No prompt content here yet.",
+  "roles": {
+    "judge": {
+      "display_name": "Judge",
+      "role_id": "judge",
+      "prompt_template": "prompts/judge.txt"
+    },
+    "pro": {
+      "display_name": "Pro",
+      "role_id": "pro",
+      "stance": "affirmative",
+      "prompt_template": "prompts/pro.txt"
+    },
+    "con": {
+      "display_name": "Con",
+      "role_id": "con",
+      "stance": "negative",
+      "prompt_template": "prompts/con.txt"
+    }
+  }
+}
