@@ -150,13 +150,20 @@ gate is **not** unlocked. "Created" ≠ "Reviewed."
 - **xfail contracts converted in 6.2a:** none (all 6 remain — they need the runner/judge/watchdog from 6.2b/6.2c)
 - [ ] **Human review** → **ChatGPT approval** → **commit** (Phase 6.2a)
 
-### Phase 6.2b/6.2c — remaining implementation
-- [ ] Gatekeeper (rate/budget/concurrency) + CostTracker + Watchdog *(6.2b)*
-- [ ] Agents (Judge, Pro, Con) + DebateSession/DebateRunner + regeneration loop + TranscriptWriter *(6.2c)*
+### Phase 6.2b — Resource control & run safety *(created; review/commit pending)*
+- [x] `results/cost_tracker.py` *(`CostTracker` — provider/search/retry counts, token estimates chars/4, injectable runtime, estimate-only summary; no file writing)*
+- [x] `quality/gatekeeper.py` *(`Gatekeeper`, `GatekeeperError` — configurable max provider/search/retry/token limits; reads CostTracker; no provider/search calls)*
+- [x] `orchestration/watchdog.py` *(`Watchdog`, `WatchdogError` — run-level stalled/retry-loop/max-runtime triggers; injectable time source; deterministic, no sleep)*
+- [x] Unit tests for all three
+- **xfail contracts converted in 6.2b:** none (provider-timeout, watchdog, retry-exhaustion contracts stay xfail until DebateRunner integrates these primitives in 6.2c)
+- [ ] **Human review** → **ChatGPT approval** → **commit** (Phase 6.2b)
+
+### Phase 6.2c — remaining implementation
+- [ ] Agents (Judge, Pro, Con) + DebateSession/DebateRunner + regeneration loop + TranscriptWriter *(6.2c — wires in CostTracker/Gatekeeper/Watchdog)*
 - [ ] Real provider adapter (Claude CLI subprocess) + real search adapter (ddgs) *(later)*
 - [ ] SDK layer + CLI that calls only the SDK; cost/resource accounting *(later)*
 **Exit criteria:** All tests green (the 6 remaining xfail contracts converted); gates pass; no hardcoded params.
-**Status:** Phase 6.1 committed; **Phase 6.2a created, review/commit pending** — not yet reviewed/complete.
+**Status:** Phase 6.1 & 6.2a committed; **Phase 6.2b created, review/commit pending** — not yet reviewed/complete.
 
 ---
 

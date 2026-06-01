@@ -4,15 +4,17 @@ A Python project **designed to orchestrate** a structured, supervised debate bet
 AI agents (**Pro** and **Con**) moderated by a **Parent/Judge** agent that will route
 every message, enforce the rules, and declare a single winner.
 
-> **Status: early development (Phase 6.2a — offline provider/search abstractions).**
+> **Status: early development (Phase 6.2b — resource-control & run-safety primitives).**
 > Implemented and tested **offline**: protocol enums/models, JSON config loading,
 > structural message + evidence validation, the 0–5 scoring rubric, the deterministic
-> configured tie-break (Phase 6.1), and now the **`ProviderAdapter`/`SearchTool`
-> abstractions with deterministic `MockProvider`/`MockSearchTool`** (no network/LLM).
-> **Not implemented yet:** the real Claude CLI provider, real web/`ddgs` search, the
-> Gatekeeper/Watchdog, the Judge/Pro/Con agents, and the full debate runner. **A full
-> debate cannot be run yet**, and no debate has been run — no results, transcripts, or
-> evidence have been produced. The full README is authored in Phase 8.
+> configured tie-break (6.1), the `ProviderAdapter`/`SearchTool` abstractions with
+> `MockProvider`/`MockSearchTool` (6.2a), and now the **`CostTracker` (estimate-only
+> metrics), `Gatekeeper` (configurable limits), and `Watchdog` (deterministic run-level
+> guard)** (6.2b) — all offline, no network/LLM. **Not implemented yet:** the real
+> Claude CLI provider, real web/`ddgs` search, the Judge/Pro/Con agents, and the full
+> debate runner. **A full debate cannot be run yet**, and no debate has been run — no
+> results, transcripts, or evidence have been produced. The full README is authored in
+> Phase 8.
 
 ## Planning & design documents
 - [`docs/REQUIREMENTS_AUDIT.md`](docs/REQUIREMENTS_AUDIT.md)
