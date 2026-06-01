@@ -67,15 +67,22 @@ gate is **not** unlocked. "Created" ≠ "Reviewed."
 
 ## Phase 3 — Architecture & Protocol Design
 **Goal:** Design components, interfaces, and the JSON message protocol.
-- [ ] Create `docs/ARCHITECTURE.md`
-- [ ] Component diagram (Judge, Pro, Con, SDK, CLI, Gatekeeper, Logger, Search adapter, Provider adapter)
-- [ ] Parent-mediated routing design (prove no child↔child path)
-- [ ] JSON message schema(s) + validation rules
-- [ ] Judge rubric & scoring/tie-break algorithm
-- [ ] Side-fidelity / agreement-collapse detection design
-- [ ] Config schema (debate, agents, logging, rate limits, provider)
-- [ ] Timeout / watchdog / Gatekeeper design
-**Exit criteria:** Interfaces frozen; schemas drafted; scoring deterministic.
+- [x] Create `docs/ARCHITECTURE.md` *(created; layers, dependency rules, components, runtime flow, failure states, security)*
+- [x] Create `docs/PROTOCOL.md` *(created; resolves OQ-A1 — enums, DebateMessage/EvidenceRecord/ValidationResult/JudgeScore/FinalJudgment schemas, routing/turn/regeneration rules, examples)*
+- [x] Create `docs/SCORING_AND_VALIDATION.md` *(created; resolves OQ-A2 — validation pipeline, two-layer evidence relevance, collapse/drift policy, rubric anchors, tie-break, failed-run policy, test map)*
+- [x] Component map (Judge, Pro, Con, SDK, CLI, Gatekeeper, Logger, Search adapter, Provider adapter) *(ARCHITECTURE §6)*
+- [x] Parent-mediated routing design (no child↔child path, verified by test) *(ARCHITECTURE §4, PROTOCOL §9)*
+- [x] JSON message schema(s) + validation rules *(PROTOCOL §4–8, SCORING_AND_VALIDATION §3)*
+- [x] Judge rubric & scoring/tie-break algorithm *(SCORING_AND_VALIDATION §7–9)*
+- [x] Side-fidelity / agreement-collapse detection design *(SCORING_AND_VALIDATION §5–6)*
+- [x] Timeout / watchdog / Gatekeeper design *(ARCHITECTURE §6–8)*
+- [x] Resolve OQ-A1 (schema), OQ-A2 (evidence relevance), OQ-A7 (auth/session = fail-fast, no V1 resume)
+- [ ] Config **schema** detail (debate/agents/logging/rate-limits/provider) — config files themselves are Phase 4
+- [ ] **Human developer review** of Phase 3 docs
+- [ ] **ChatGPT reviewer approval** of Phase 3 docs
+- [ ] **Commit** Phase 3 docs to Git
+**Exit criteria:** Interfaces frozen; schemas drafted; scoring deterministic — **reviewed per the Review Rule**.
+**Status:** Docs created + consistency/security polish applied (tie-break → configured `final_tie_break_priority`; `content`/`argument` clarified; `session_id` added to EvidenceRecord; prompt-injection test + SR-4 robustness behavior added); **review/commit pending** — Phase 3 is *not yet reviewed*, so Phase 4 remains gated. (Concrete `config/*.json` schemas/templates are authored in Phase 4.)
 
 ---
 
