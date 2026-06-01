@@ -4,30 +4,37 @@ A Python project **designed to orchestrate** a structured, supervised debate bet
 AI agents (**Pro** and **Con**) moderated by a **Parent/Judge** agent that will route
 every message, enforce the rules, and declare a single winner.
 
-> **Status: early development (Phase 6.3c — real search provider class added).**
+> **Status: early development (Phase 6.3d — real-mode wiring, mock default).**
 > Implemented and tested **offline**: protocol/validation/scoring/tie-break (6.1),
 > provider/search abstractions + mocks (6.2a), `CostTracker`/`Gatekeeper`/`Watchdog`
-> (6.2b), Judge/Pro/Con agents + `DebateRunner` + `TranscriptWriter` (6.2c), the offline
-> mock SDK + `agent-debate` CLI (6.3a), `ClaudeCliProvider` (6.3b), and now a
-> **`RealSearchTool`** that implements `SearchTool` and converts web-search results into
-> evidence via an **injected search backend** (6.3c).
-> **Neither the real provider nor the real search is used by the default CLI** — the
-> `mock-run` command still runs the offline mock path with `MockProvider`/`MockSearchTool`.
-> **Normal tests mock the search backend (and `subprocess`) and never call the web or
-> Claude.** Still pending: a concrete `ddgs` backend and wiring a real-mode CLI. **No real
-> Claude-backed or evidence-backed debate has been run yet; live search validation is
-> deferred to Phase 7 / a controlled manual smoke test.** No committed
-> results/transcripts/logs/evidence (artifacts only when `--output-dir` is given; tests
-> use pytest `tmp_path`). The full README is authored in Phase 8.
+> (6.2b), Judge/Pro/Con agents + `DebateRunner` + `TranscriptWriter` (6.2c), offline mock
+> SDK + CLI (6.3a), `ClaudeCliProvider` (6.3b), `RealSearchTool` (6.3c), and now
+> **provider/search factories, a lazy `ddgs` backend, a configured SDK run, and an
+> `agent-debate run` command** with `--provider`/`--search` flags (6.3d).
+> **Mock mode is the default and the safe path** — `run` defaults to `--provider mock
+> --search mock`, and `mock-run` is unchanged. `claude_cli`/`ddgs` are **opt-in**; the
+> CLI clearly warns when real mode is selected. **Normal tests mock all external calls
+> (`subprocess`, the ddgs backend) and never call Claude or the web.** **No real
+> Claude-backed or evidence-backed debate has been run yet — Phase 7 is the controlled
+> real run.** No committed results/transcripts/logs/evidence (artifacts only when
+> `--output-dir` is given; tests use pytest `tmp_path`). The full README is in Phase 8.
 
-### Offline mock CLI (Phase 6.3a)
+### CLI usage
 ```bash
+# Offline mock debate (unchanged, fully deterministic):
 uv run agent-debate mock-run --turns-per-side 1
-# add --output-dir <dir> to write transcript/cost artifacts there (never written by default)
+
+# Configured run — defaults to mock/mock (offline, safe):
+uv run agent-debate run --provider mock --search mock --turns-per-side 1
+
+# Opt-in real mode (NOT yet exercised in project evidence; may call external tools/web):
+#   uv run agent-debate run --provider claude_cli --search ddgs
+# add --output-dir <dir> to write transcript/cost artifacts (never written by default).
 ```
-This runs a deterministic offline debate using `MockProvider`/`MockSearchTool` — **no
-real provider, search, network, or LLM**. The real provider (`ClaudeCliProvider`) and
-real search (`RealSearchTool`) classes now exist but are **not yet wired into this CLI**.
+Both commands default to the offline mocks (`MockProvider`/`MockSearchTool`) — **no real
+provider, search, network, or LLM**. `--provider claude_cli` / `--search ddgs` are opt-in;
+the CLI prints a clear **REAL MODE** warning, and a concrete `ddgs` backend requires the
+optional `ddgs` package (lazily imported). **No real run has been performed yet.**
 
 ## Planning & design documents
 - [`docs/REQUIREMENTS_AUDIT.md`](docs/REQUIREMENTS_AUDIT.md)

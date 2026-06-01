@@ -37,6 +37,12 @@ def _read_json(path: Path) -> dict[str, Any]:
         raise ConfigError(f"invalid JSON in {path}: {exc}") from exc
 
 
+def load_raw_config(name: str, config_dir: Path | None = None) -> dict[str, Any]:
+    """Load a config JSON file (e.g. 'providers.json') from the config dir."""
+    base = config_dir or DEFAULT_CONFIG_DIR
+    return _read_json(base / name)
+
+
 def load_debate_config(config_dir: Path | None = None) -> DebateConfig:
     base = config_dir or DEFAULT_CONFIG_DIR
     data = _read_json(base / "debate.json")

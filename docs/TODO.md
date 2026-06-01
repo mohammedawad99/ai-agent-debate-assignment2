@@ -193,11 +193,22 @@ gate is **not** unlocked. "Created" ≠ "Reviewed."
 - **Dependency:** none added — DI of a backend callable avoids a heavy/network dep now; concrete `ddgs` backend + dependency added when real-mode is wired
 - [ ] **Human review** → **ChatGPT approval** → **commit** (Phase 6.3c)
 
-### Phase 6.3d+ — real-mode wiring (later)
-- [ ] Supply a concrete `ddgs` search backend (add dependency via uv at that point)
-- [ ] Wire a real-mode SDK path + CLI flag (`--provider claude_cli --search ddgs`); load provider/search config via `ConfigLoader`; project-local prompts
-**Exit criteria:** All tests green; gates pass; no hardcoded params; real evidence-backed run reserved for Phase 7.
-**Status:** Phase 6.1 / 6.2a / 6.2b / 6.2c / 6.3a / 6.3b committed; **Phase 6.3c created, review/commit pending** — not yet reviewed/complete. `ClaudeCliProvider` + `RealSearchTool` added but not wired into the default CLI; no real provider/search/web calls; no committed results/evidence.
+### Phase 6.3d — Real-mode wiring (mock default, no live calls in tests) *(created; review/commit pending)*
+- [x] `providers/factory.py` *(`build_provider` — mock | claude_cli; combines command+args; no execution at construction; `ProviderConfigError`)*
+- [x] `search/factory.py` *(`build_search` — mock | ddgs/real_search; injectable backend; no web at construction; `SearchConfigError`)*
+- [x] `search/ddgs_backend.py` *(`ddgs_search` — lazy optional `ddgs` import + injectable `client_factory`; maps to {title,url,snippet}; clear `SearchError` if `ddgs` missing)*
+- [x] `config/loader.py` *(added `load_raw_config` for providers/search JSON)*
+- [x] `sdk/service.py` *(`run_mock_debate` behavior preserved via shared `_run_debate`; new `run_configured_debate(provider, search, …, overrides)`)*
+- [x] `cli/main.py` *(added `agent-debate run --provider --search …`; mock default; REAL MODE warning; calls SDK only)*
+- [x] Tests: provider/search factories, ddgs backend mapping + missing-dep error, configured SDK run + overrides, CLI run mock + real (monkeypatched); `mock-run` unchanged
+- **Dependency:** none added — lazy `ddgs` import + injectable client; offline gate stays clean
+- [ ] **Human review** → **ChatGPT approval** → **commit** (Phase 6.3d)
+
+### Phase 6.4+ — project-local prompts & real-run prep (later)
+- [ ] Project-local prompt templates (`prompts/`) wired via `config/agents.json`
+- [ ] (Optional) declare `ddgs` as an optional extra when the real run is prepared
+**Exit criteria:** All tests green; gates pass; no hardcoded params; **real evidence-backed run is Phase 7** (controlled, manual).
+**Status:** Phase 6.1 / 6.2a / 6.2b / 6.2c / 6.3a / 6.3b / 6.3c committed; **Phase 6.3d created, review/commit pending** — not yet reviewed/complete. Real provider/search selectable but mock is default; no real Claude/web calls in tests; no committed results/evidence.
 
 ---
 

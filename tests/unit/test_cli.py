@@ -62,3 +62,42 @@ def test_failed_run_exits_nonzero(monkeypatch: pytest.MonkeyPatch) -> None:
 
     monkeypatch.setattr("agent_debate.cli.main.run_mock_debate", fake_run)
     assert main(["mock-run"]) == 1
+
+
+def test_run_mock_mode_exits_zero(capsys: pytest.CaptureFixture[str]) -> None:
+    code = main(["run", "--provider", "mock", "--search", "mock", "--turns-per-side", "1"])
+    assert code == 0
+    out = capsys.readouterr().out
+    assert "MOCK MODE" in out
+    assert "provider: mock | search: mock" in out
+
+
+def test_run_real_mode_delegates_and_warns(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    calls: dict[str, object] = {}
+
+    def fake_run(*, provider: str, search: str, **_kwargs: object) -> DebateSessionResult:
+        calls["provider"] = provider
+        calls["search"] = search
+        return DebateSessionResult(
+            session_id="x",
+            status=RunStatus.SUCCESS,
+            final_judgment=FinalJudgment(
+                session_id="x",
+                winner_role="con",
+                loser_role="pro",
+                scores={},
+                tie_break_used=True,
+                tie_break_reason="configured_priority",
+                reasoning="r",
+                limitations="l",
+                created_at="t",
+            ),
+        )
+
+    monkeypatch.setattr("agent_debate.cli.main.run_configured_debate", fake_run)
+    code = main(["run", "--provider", "claude_cli", "--search", "ddgs"])
+    assert code == 0
+    assert calls == {"provider": "claude_cli", "search": "ddgs"}
+    assert "REAL MODE" in capsys.readouterr().out

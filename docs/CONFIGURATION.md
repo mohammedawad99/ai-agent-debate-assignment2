@@ -79,3 +79,23 @@ wired. No keys or personal paths appear in config.
 **Safety / testing:** retrieved content is **untrusted evidence data**, never
 instructions. Normal tests **inject a fake backend** and **do not call the web**. **Live
 search validation is deferred to Phase 7 / a controlled manual smoke test.**
+
+## Provider / search selection (Phase 6.3d)
+
+Selection is wired through factories and the `agent-debate run` command. **Mock is the
+default and the safe path.**
+
+- **Provider** (`--provider`): `mock` (default → `MockProvider`) or `claude_cli`
+  (→ `ClaudeCliProvider`, combining `command` + `args`). Built by
+  `agent_debate.providers.factory.build_provider`.
+- **Search** (`--search`): `mock` (default → `MockSearchTool`) or `ddgs`
+  (→ `RealSearchTool` with the lazy `ddgs_search` backend). Built by
+  `agent_debate.search.factory.build_search`.
+
+The SDK `run_configured_debate(provider=..., search=...)` loads `providers.json` /
+`search.json`, overrides `active` with the requested names, and constructs the adapters
+via the factories. **Construction never executes Claude or calls the web.** Selecting
+`claude_cli`/`ddgs` and *running* would invoke the external tool / require the optional
+`ddgs` package; the CLI prints a clear **REAL MODE** warning. **Normal tests select mock
+or monkeypatch the SDK/factories — no real Claude/web calls occur in the quality gate,
+and no real evidence-backed run has been performed (reserved for Phase 7).**
