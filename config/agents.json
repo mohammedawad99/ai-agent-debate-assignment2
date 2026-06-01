@@ -1,22 +1,27 @@
 {
-  "_comment": "Agent role definitions. prompt_template paths point to project-local prompts (R-21), authored in Phase 6. No prompt content here yet.",
+  "_comment": "Agent role definitions. `prompt_template` / `protocol_prompts` paths are RELATIVE to `prompts_dir` (no absolute paths, no secrets). Loaded by the project-local PromptLoader (R-21).",
+  "prompts_dir": "prompts",
   "roles": {
     "judge": {
       "display_name": "Judge",
       "role_id": "judge",
-      "prompt_template": "prompts/judge.txt"
+      "prompt_template": "agents/judge.md"
     },
     "pro": {
       "display_name": "Pro",
       "role_id": "pro",
       "stance": "affirmative",
-      "prompt_template": "prompts/pro.txt"
+      "prompt_template": "agents/pro.md"
     },
     "con": {
       "display_name": "Con",
       "role_id": "con",
       "stance": "negative",
-      "prompt_template": "prompts/con.txt"
+      "prompt_template": "agents/con.md"
     }
+  },
+  "protocol_prompts": {
+    "regeneration": "protocol/regeneration.md",
+    "final_judgment": "protocol/final_judgment.md"
   }
 }

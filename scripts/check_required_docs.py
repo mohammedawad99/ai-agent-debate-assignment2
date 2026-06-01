@@ -24,6 +24,7 @@ REQUIRED_DOCS = [
     "docs/PROTOCOL.md",
     "docs/SCORING_AND_VALIDATION.md",
     "docs/CONFIGURATION.md",
+    "docs/PROMPTS.md",
     "docs/QUALITY.md",
 ]
 

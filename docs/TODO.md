@@ -204,9 +204,17 @@ gate is **not** unlocked. "Created" ≠ "Reviewed."
 - **Dependency:** none added — lazy `ddgs` import + injectable client; offline gate stays clean
 - [ ] **Human review** → **ChatGPT approval** → **commit** (Phase 6.3d)
 
-### Phase 6.4+ — project-local prompts & real-run prep (later)
-- [ ] Project-local prompt templates (`prompts/`) wired via `config/agents.json`
-- [ ] (Optional) declare `ddgs` as an optional extra when the real run is prepared
+### Phase 6.4 — Project-local prompt templates *(created; review/commit pending)*
+- [x] Prompt files: `prompts/agents/{judge,pro,con}.md`, `prompts/protocol/{regeneration,final_judgment}.md`
+- [x] `config/agents.json` references them by **relative** paths (`prompts_dir` + `prompt_template`/`protocol_prompts`)
+- [x] `prompts/` package: `loader.py` (rejects absolute/`..`, `PromptError` on missing) + `templates.py` (`{placeholder}` renderer; no eval/exec; fail-clear on missing value)
+- [x] Tests: files exist, loader local/absolute/traversal/missing, renderer fill/fail/ignore-JSON-braces, required protocol terms, config references valid
+- [x] `docs/PROMPTS.md` (design, list, why-not-global-skills, placeholders, safety) + README/CONFIGURATION updates
+- **No behavior change** to DebateRunner/agents (prompts not yet wired into `produce()`); **no real Claude/web**; mock stays default
+- [ ] **Human review** → **ChatGPT approval** → **commit** (Phase 6.4)
+
+### Phase 6.5+ / real-run prep (later)
+- [ ] (Optional) wire prompt rendering into agents for real mode; declare `ddgs` optional extra
 **Exit criteria:** All tests green; gates pass; no hardcoded params; **real evidence-backed run is Phase 7** (controlled, manual).
 **Status:** Phase 6.1 / 6.2a / 6.2b / 6.2c / 6.3a / 6.3b / 6.3c committed; **Phase 6.3d created, review/commit pending** — not yet reviewed/complete. Real provider/search selectable but mock is default; no real Claude/web calls in tests; no committed results/evidence.
 

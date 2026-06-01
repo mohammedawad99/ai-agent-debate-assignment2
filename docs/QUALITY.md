@@ -50,7 +50,7 @@ uv run python scripts/check_json_configs.py
 Enforced by `scripts/check_required_docs.py`: `README.md`, and under `docs/`:
 `REQUIREMENTS_AUDIT.md`, `LESSONS_FROM_ASSIGNMENT1.md`, `PROJECT_RULES.md`, `TODO.md`,
 `PRD.md`, `PLAN.md`, `ARCHITECTURE.md`, `PROTOCOL.md`, `SCORING_AND_VALIDATION.md`,
-`CONFIGURATION.md`, `QUALITY.md`.
+`CONFIGURATION.md`, `PROMPTS.md`, `QUALITY.md`.
 
 ## File-size check
 

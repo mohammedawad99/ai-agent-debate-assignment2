@@ -4,6 +4,15 @@ A Python project **designed to orchestrate** a structured, supervised debate bet
 AI agents (**Pro** and **Con**) moderated by a **Parent/Judge** agent that will route
 every message, enforce the rules, and declare a single winner.
 
+> **Status: early development (Phase 6.4 — project-local prompt templates).**
+> **Project-local prompt templates** for the Judge/Pro/Con agents and the
+> regeneration / final-judgment steps now live under `prompts/` (referenced by
+> `config/agents.json` via relative paths) with a small loader/renderer — **no global
+> Claude skills**. They are **templates only**, not yet wired into the runtime, and
+> **no real Claude run has been performed**. Mock mode remains the default. Earlier
+> phases (offline core, mocks, orchestration, real adapters behind factories) are
+> summarized below.
+>
 > **Status: early development (Phase 6.3d — real-mode wiring, mock default).**
 > Implemented and tested **offline**: protocol/validation/scoring/tie-break (6.1),
 > provider/search abstractions + mocks (6.2a), `CostTracker`/`Gatekeeper`/`Watchdog`

@@ -12,7 +12,7 @@ via `.env` (see `.env.example`); `.env` is gitignored and never committed.
 |------|---------|
 | `config/app.json` | Top-level wiring: run mode (`dev`/`full`/`budget`), which provider/search adapter is active, and output paths (transcript, judgment, evidence, cost report, logs). |
 | `config/debate.json` | Debate parameters: topic, language, turns per side (`full`=10, `dev`=3, `budget_fallback`=5), word limits (child=160, judge=400), retry cap (2), rubric scale/dimensions (0–5, equal weight), and `final_tie_break_priority` (default `["con","pro"]`). |
-| `config/agents.json` | Role definitions for Judge/Pro/Con and references to project-local prompt templates (prompt files authored in Phase 6). |
+| `config/agents.json` | Role definitions for Judge/Pro/Con plus `prompts_dir` and **relative** prompt paths: each role's `prompt_template` and the `protocol_prompts` (regeneration / final judgment) point to files under `prompts/` (e.g. `agents/judge.md`). **No absolute paths, no secrets** — loaded by the project-local `PromptLoader`. See [`PROMPTS.md`](./PROMPTS.md). |
 | `config/providers.json` | Provider adapters: `mock` (tests), `claude_cli` (primary, login-based subprocess — **no key**), and an optional future `api_key` provider whose key is read from an **env var name**, never stored. Includes per-call timeouts. |
 | `config/search.json` | Search/evidence tools: `mock` (tests) and the no-key `ddgs` candidate; evidence policy (min refs per turn, reuse allowed, relevance required, untrusted-content flag); per-search timeout + retries. |
 | `config/logging.json` | Structured logging: level, format, console/file sinks, rotation (`max_bytes`/`backup_count`), JSONL event log, and secret redaction. |
