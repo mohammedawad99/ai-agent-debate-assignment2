@@ -9,11 +9,13 @@
     },
     "ddgs": {
       "type": "ddgs",
+      "provider_name": "ddgs",
       "enabled": true,
       "max_results": 5,
       "region": "wt-wt",
       "timeout_seconds": 15,
-      "retries": 2
+      "retries": 2,
+      "_note": "Used by RealSearchTool via an injected search backend; NOT wired into the default mock CLI yet. No keys. Live validation deferred to Phase 7 / a controlled smoke test."
     }
   },
   "evidence": {

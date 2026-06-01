@@ -4,16 +4,19 @@ A Python project **designed to orchestrate** a structured, supervised debate bet
 AI agents (**Pro** and **Con**) moderated by a **Parent/Judge** agent that will route
 every message, enforce the rules, and declare a single winner.
 
-> **Status: early development (Phase 6.3b — Claude CLI provider class added).**
+> **Status: early development (Phase 6.3c — real search provider class added).**
 > Implemented and tested **offline**: protocol/validation/scoring/tie-break (6.1),
 > provider/search abstractions + mocks (6.2a), `CostTracker`/`Gatekeeper`/`Watchdog`
 > (6.2b), Judge/Pro/Con agents + `DebateRunner` + `TranscriptWriter` (6.2c), the offline
-> mock SDK + `agent-debate` CLI (6.3a), and now a **`ClaudeCliProvider`** that implements
-> `ProviderAdapter` over a configurable, timeout-aware subprocess (6.3b).
-> **`ClaudeCliProvider` is NOT used by the default CLI** — the `mock-run` command still
-> runs the offline mock path. **Its tests mock `subprocess.run` and never call Claude.**
-> Still pending: real web/`ddgs` search, and wiring a real-provider CLI mode. **No real
-> Claude-backed or evidence-backed debate has been run yet** — no committed
+> mock SDK + `agent-debate` CLI (6.3a), `ClaudeCliProvider` (6.3b), and now a
+> **`RealSearchTool`** that implements `SearchTool` and converts web-search results into
+> evidence via an **injected search backend** (6.3c).
+> **Neither the real provider nor the real search is used by the default CLI** — the
+> `mock-run` command still runs the offline mock path with `MockProvider`/`MockSearchTool`.
+> **Normal tests mock the search backend (and `subprocess`) and never call the web or
+> Claude.** Still pending: a concrete `ddgs` backend and wiring a real-mode CLI. **No real
+> Claude-backed or evidence-backed debate has been run yet; live search validation is
+> deferred to Phase 7 / a controlled manual smoke test.** No committed
 > results/transcripts/logs/evidence (artifacts only when `--output-dir` is given; tests
 > use pytest `tmp_path`). The full README is authored in Phase 8.
 
@@ -23,7 +26,8 @@ uv run agent-debate mock-run --turns-per-side 1
 # add --output-dir <dir> to write transcript/cost artifacts there (never written by default)
 ```
 This runs a deterministic offline debate using `MockProvider`/`MockSearchTool` — **no
-real provider, search, network, or LLM**. The real provider/search arrive in Phase 6.3b+.
+real provider, search, network, or LLM**. The real provider (`ClaudeCliProvider`) and
+real search (`RealSearchTool`) classes now exist but are **not yet wired into this CLI**.
 
 ## Planning & design documents
 - [`docs/REQUIREMENTS_AUDIT.md`](docs/REQUIREMENTS_AUDIT.md)

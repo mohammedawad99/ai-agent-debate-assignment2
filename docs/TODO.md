@@ -185,11 +185,19 @@ gate is **not** unlocked. "Created" ≠ "Reviewed."
 - **subprocess policy:** allowed only in `providers/claude_cli_provider.py` (production) + mocked/benign test usage
 - [ ] **Human review** → **ChatGPT approval** → **commit** (Phase 6.3b)
 
-### Phase 6.3c+ — remaining adapters & wiring (later)
-- [ ] Real search adapter (`ddgs`) behind `SearchTool`
-- [ ] Wire a real-mode SDK path + CLI flag (`--provider claude_cli`); project-local prompts
+### Phase 6.3c — Real search provider class *(created; review/commit pending)*
+- [x] `search/real_search.py` *(`RealSearchTool` implements `SearchTool`; converts raw results → `EvidenceRecord`; injected search backend; conservative `relevance_status="relevant"`; untrusted snippet kept as data; wraps backend errors as `SearchError`)*
+- [x] `config/search.json` *(added `provider_name` + status note to `ddgs`; `mock` stays active default)*
+- [x] Unit tests `test_real_search.py` *(fake injected backend: success, empty, error→SearchError, session/claim carried, malicious-snippet-as-data, call_count, default clock — no web calls)*
+- [x] README/CONFIG honesty: real search class exists, NOT default, tests mock backend, no web, live validation deferred to Phase 7
+- **Dependency:** none added — DI of a backend callable avoids a heavy/network dep now; concrete `ddgs` backend + dependency added when real-mode is wired
+- [ ] **Human review** → **ChatGPT approval** → **commit** (Phase 6.3c)
+
+### Phase 6.3d+ — real-mode wiring (later)
+- [ ] Supply a concrete `ddgs` search backend (add dependency via uv at that point)
+- [ ] Wire a real-mode SDK path + CLI flag (`--provider claude_cli --search ddgs`); load provider/search config via `ConfigLoader`; project-local prompts
 **Exit criteria:** All tests green; gates pass; no hardcoded params; real evidence-backed run reserved for Phase 7.
-**Status:** Phase 6.1 / 6.2a / 6.2b / 6.2c / 6.3a committed; **Phase 6.3b created, review/commit pending** — not yet reviewed/complete. `ClaudeCliProvider` added but not wired into the default CLI; no real provider/search calls; no committed results/evidence.
+**Status:** Phase 6.1 / 6.2a / 6.2b / 6.2c / 6.3a / 6.3b committed; **Phase 6.3c created, review/commit pending** — not yet reviewed/complete. `ClaudeCliProvider` + `RealSearchTool` added but not wired into the default CLI; no real provider/search/web calls; no committed results/evidence.
 
 ---
 

@@ -55,3 +55,27 @@ one list** (e.g. `["claude", "-p"]`) and passing `input_mode`/`timeout_seconds` 
 **Testing:** `ClaudeCliProvider` tests **mock `subprocess.run`** and do **not** execute
 Claude or any real CLI/LLM. **A real Claude-backed debate run has not been executed yet**
 (reserved for a later phase / the Phase 7 real run).
+
+## Real search provider (`ddgs`)
+
+`config/search.json` includes a `ddgs` provider section, used by `RealSearchTool`
+(Phase 6.3c). `mock` remains the **active default**; `ddgs` is opt-in and not wired into
+the default CLI yet.
+
+| Field | Meaning |
+|-------|---------|
+| `provider_name` | Label recorded on each `EvidenceRecord` (e.g. `"ddgs"`). |
+| `max_results` | Maximum results requested per query. |
+| `region` | Search region hint (e.g. `"wt-wt"`). |
+| `timeout_seconds` | Per-search timeout for the real backend. |
+| `retries` | Retry attempts for transient failures. |
+
+**Design note:** `RealSearchTool` takes an **injected search backend** callable
+`(query, max_results) -> list[dict]` rather than importing a web library directly. This
+keeps the adapter real and behind `SearchTool` while staying fully offline-testable; the
+concrete `ddgs`-backed backend (and its dependency) is supplied when a real-mode run is
+wired. No keys or personal paths appear in config.
+
+**Safety / testing:** retrieved content is **untrusted evidence data**, never
+instructions. Normal tests **inject a fake backend** and **do not call the web**. **Live
+search validation is deferred to Phase 7 / a controlled manual smoke test.**
