@@ -177,12 +177,19 @@ gate is **not** unlocked. "Created" ≠ "Reviewed."
 - [x] README offline mock CLI usage/status
 - [ ] **Human review** → **ChatGPT approval** → **commit** (Phase 6.3a)
 
-### Phase 6.3b+ — real adapters (later)
-- [ ] Real provider adapter (Claude CLI subprocess, timeouts) behind `ProviderAdapter`
+### Phase 6.3b — Claude CLI provider class *(created; review/commit pending)*
+- [x] `providers/claude_cli_provider.py` *(`ClaudeCliProvider` implements `ProviderAdapter` via configurable `subprocess.run`: command/timeout/input_mode; timeout→`ProviderTimeoutError`, nonzero/empty→`ProviderError`; no secrets/paths; command list not mutated)*
+- [x] `config/providers.json` *(added `input_mode` to `claude_cli`; `mock` stays the active default)*
+- [x] Unit tests `test_claude_cli_provider.py` *(mock `subprocess.run`; stdin/argument modes, nonzero, empty+stderr, timeout, call_count, no-mutation, invalid input_mode, empty command — no real Claude call)*
+- [x] README/CONFIG honesty: provider exists, NOT used by default CLI, tests mock subprocess, no real run yet
+- **subprocess policy:** allowed only in `providers/claude_cli_provider.py` (production) + mocked/benign test usage
+- [ ] **Human review** → **ChatGPT approval** → **commit** (Phase 6.3b)
+
+### Phase 6.3c+ — remaining adapters & wiring (later)
 - [ ] Real search adapter (`ddgs`) behind `SearchTool`
-- [ ] Wire a real-mode SDK path + CLI flag; project-local prompts
+- [ ] Wire a real-mode SDK path + CLI flag (`--provider claude_cli`); project-local prompts
 **Exit criteria:** All tests green; gates pass; no hardcoded params; real evidence-backed run reserved for Phase 7.
-**Status:** Phase 6.1 / 6.2a / 6.2b / 6.2c committed; **Phase 6.3a created, review/commit pending** — not yet reviewed/complete. Offline mock SDK/CLI only; no real provider/search; no committed results/evidence.
+**Status:** Phase 6.1 / 6.2a / 6.2b / 6.2c / 6.3a committed; **Phase 6.3b created, review/commit pending** — not yet reviewed/complete. `ClaudeCliProvider` added but not wired into the default CLI; no real provider/search calls; no committed results/evidence.
 
 ---
 

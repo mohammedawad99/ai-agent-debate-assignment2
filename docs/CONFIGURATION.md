@@ -24,3 +24,34 @@ via `.env` (see `.env.example`); `.env` is gitignored and never committed.
 - No file contains an API key, token, password, or other secret.
 - Values intentionally mirror the figures fixed in `docs/PRD.md`, `docs/PLAN.md`, and
   `docs/SCORING_AND_VALIDATION.md`, so config stays traceable to the design.
+
+## Claude CLI provider (`claude_cli`)
+
+`config/providers.json` includes a `claude_cli` provider section, implemented by
+`ClaudeCliProvider` (Phase 6.3b). It is **not the active default** — `mock` remains the
+default, offline-safe provider, and the `agent-debate` CLI still runs the offline mock
+path. `claude_cli` is opt-in and will be wired into a real-mode path in a later phase.
+
+| Field | Meaning |
+|-------|---------|
+| `command` | Base command to launch the login-based CLI (e.g. `["claude"]`). |
+| `args` | Fixed arguments that follow the command (e.g. `["-p"]`). |
+| `input_mode` | How the prompt is delivered: `"stdin"` (piped to the process) or `"argument"` (appended as the final CLI argument). |
+| `timeout_seconds` | Per-call timeout; on expiry the provider raises `ProviderTimeoutError`. |
+
+**`input_mode` allowed values:** `"stdin"` or `"argument"` (any other value is rejected
+with a clear error).
+
+**Wiring note:** `ClaudeCliProvider.__init__` takes a single `command: list[str]`. The
+future real-mode wiring layer is responsible for **combining `command` + `args` into that
+one list** (e.g. `["claude", "-p"]`) and passing `input_mode`/`timeout_seconds` through.
+
+**Safety:**
+- `command`/`args` **must not contain secrets** (API keys, tokens) or **user-specific
+  absolute paths**. The CLI is login-based; authentication is handled by the CLI session,
+  not by this config.
+- The provider never prints the environment and never logs secrets.
+
+**Testing:** `ClaudeCliProvider` tests **mock `subprocess.run`** and do **not** execute
+Claude or any real CLI/LLM. **A real Claude-backed debate run has not been executed yet**
+(reserved for a later phase / the Phase 7 real run).

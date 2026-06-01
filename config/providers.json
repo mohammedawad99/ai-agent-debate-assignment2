@@ -11,8 +11,10 @@
       "type": "cli_subprocess",
       "command": ["claude"],
       "args": ["-p"],
+      "input_mode": "stdin",
+      "_input_mode_options": ["stdin", "argument"],
       "timeout_seconds": 120,
-      "_note": "Configurable command/args. Login-based; no API key required or stored."
+      "_note": "Configurable command/args/input_mode. Login-based; no API key required or stored. Implemented by ClaudeCliProvider; NOT used by the default mock CLI yet."
     },
     "api_key": {
       "type": "api",

@@ -4,17 +4,18 @@ A Python project **designed to orchestrate** a structured, supervised debate bet
 AI agents (**Pro** and **Con**) moderated by a **Parent/Judge** agent that will route
 every message, enforce the rules, and declare a single winner.
 
-> **Status: early development (Phase 6.3a — offline mock SDK + CLI).**
+> **Status: early development (Phase 6.3b — Claude CLI provider class added).**
 > Implemented and tested **offline**: protocol/validation/scoring/tie-break (6.1),
 > provider/search abstractions + mocks (6.2a), `CostTracker`/`Gatekeeper`/`Watchdog`
-> (6.2b), the Judge/Pro/Con agents + parent-mediated `DebateRunner` + `TranscriptWriter`
-> (6.2c), and now an **SDK service (`run_mock_debate`) and a thin `agent-debate` CLI**
-> that run the debate **in offline mock mode** (6.3a). All 13 behavioral contract tests
-> pass. **Not implemented yet:** the **real Claude CLI provider** and **real web/`ddgs`
-> search**. **No real evidence-backed debate has been run** — the CLI runs only the mock
-> path; no committed results/transcripts/logs/evidence (artifacts are written only when
-> `--output-dir` is given, and tests use pytest `tmp_path`). The full README is authored
-> in Phase 8.
+> (6.2b), Judge/Pro/Con agents + `DebateRunner` + `TranscriptWriter` (6.2c), the offline
+> mock SDK + `agent-debate` CLI (6.3a), and now a **`ClaudeCliProvider`** that implements
+> `ProviderAdapter` over a configurable, timeout-aware subprocess (6.3b).
+> **`ClaudeCliProvider` is NOT used by the default CLI** — the `mock-run` command still
+> runs the offline mock path. **Its tests mock `subprocess.run` and never call Claude.**
+> Still pending: real web/`ddgs` search, and wiring a real-provider CLI mode. **No real
+> Claude-backed or evidence-backed debate has been run yet** — no committed
+> results/transcripts/logs/evidence (artifacts only when `--output-dir` is given; tests
+> use pytest `tmp_path`). The full README is authored in Phase 8.
 
 ### Offline mock CLI (Phase 6.3a)
 ```bash
