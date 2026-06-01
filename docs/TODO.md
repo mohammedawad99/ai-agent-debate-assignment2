@@ -108,13 +108,19 @@ gate is **not** unlocked. "Created" ≠ "Reviewed."
 
 ## Phase 5 — Tests & Quality Gates
 **Goal:** TDD scaffolding and automated gates before feature code.
-- [ ] Unit tests: schema validation, scoring, tie-break, side-fidelity, config, gatekeeper
-- [ ] Integration test: parent-mediated routing (no child↔child path)
-- [ ] E2E test: short bounded debate with mocked provider + mocked search
-- [ ] Coverage gate configured
-- [ ] File-size + required-doc gate scripts
-- [ ] CI-style quality command (run all gates locally)
-**Exit criteria:** Failing tests exist for unbuilt features (TDD); gates wired.
+- [x] `docs/QUALITY.md` *(gate purpose, commands, enforced-now vs later, xfail TDD policy)*
+- [x] Quality scripts *(`scripts/check_required_docs.py`, `check_file_lengths.py` (≤150), `check_json_configs.py` — tooling only, relative paths, exit non-zero on failure)*
+- [x] Config/hygiene tests *(`test_config_values.py`: tie-break=["con","pro"], retry=2, words 160/400, turns=10; `test_repo_hygiene.py`: required docs, .env absent/untracked, .env.example present; `test_quality_scripts.py`: scripts run clean)*
+- [x] Behavioral **contract tests as xfail TDD placeholders** *(`tests/integration/test_contracts.py` — 13 contracts; suite still exits 0; no fake evidence)*
+- [x] Coverage gate configured *(85% via `--cov-fail-under=85`, documented; not in default addopts)*
+- [x] File-size + required-doc + JSON-config gate scripts
+- [x] README "Current quality commands" section *(notes contracts are xfail until Phase 6)*
+- [ ] Run all gates and report results honestly
+- [ ] **Human developer review** of Phase 5
+- [ ] **ChatGPT reviewer approval** of Phase 5
+- [ ] **Commit** Phase 5 to Git
+**Exit criteria:** Failing (xfail) contract tests exist for unbuilt features (TDD); gates wired and green — **reviewed per the Review Rule**.
+**Status:** Created; **review/commit pending** — Phase 5 is *not yet reviewed/complete*, so **Phase 6 remains gated**. No debate/orchestration/agent/provider/search logic implemented; behavioral tests are xfail; no results/evidence produced. *(Real unit tests for schema/scoring/gatekeeper become non-xfail in Phase 6 alongside the implementation.)*
 
 ---
 
