@@ -4,6 +4,19 @@ A Python project **designed to orchestrate** a structured, supervised debate bet
 AI agents (**Pro** and **Con**) moderated by a **Parent/Judge** agent that will route
 every message, enforce the rules, and declare a single winner.
 
+> **Status: early development (Phase 7.8 — graceful provider-backed Judge failure).**
+> Three controlled real runs (2 turns/side, real Claude CLI + live `ddgs`) have been
+> attempted; **none has succeeded yet**. The **third** got furthest: both Pro and Con
+> turns were **accepted** (the Phase 7.6 regeneration + margin fixes worked) and the run
+> **reached the provider-backed Judge** — but Claude returned **empty/non-JSON** for the
+> verdict, raising `JudgeError`, which the runner did not catch, so the CLI **crashed with
+> no artifacts**. Phase 7.8 makes that failure **graceful**: `JudgeError` is now a
+> controlled `failed_protocol` result that preserves accepted turns and writes
+> transcript + cost report + `error_report.md` (no crash, **no fabricated winner**); the
+> final-judgment prompt is hardened to demand a single JSON object. **No successful real
+> run exists yet, and no winner has been produced by a real debate.** A fourth real run
+> (fresh timestamped directory) is still pending.
+>
 > **Status: early development (Phase 7.6 — real regeneration wiring after 2 failed runs).**
 > Two controlled real runs (2 turns/side, real Claude CLI + live `ddgs`) have been
 > attempted and **both failed honestly** on `word_limit_exceeded`. The **second** made

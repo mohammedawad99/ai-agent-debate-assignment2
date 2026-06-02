@@ -301,7 +301,20 @@ gate is **not** unlocked. "Created" ≠ "Reviewed."
 - [x] Tests: runner retry sends a CHANGED, error-aware prompt (contains `word_limit_exceeded` + the limit, no JSON); a mocked over-limit first attempt recovers on a shorter retry; retry exhaustion still fails; mock-run/configured-mock unchanged
 - **No real Claude/LLM call; no live ddgs/web search; both failed-run dirs untouched/uncommitted**
 - **Remaining (honest):** `child_turn_max_words` unchanged (220); third real run not yet executed
-- [ ] **Human review** → **ChatGPT approval** → **commit** (Phase 7.6)
+- [x] **Human review** → **ChatGPT approval** → **commit** (Phase 7.6) *(committed `c99e063`)*
+
+### Phase 7.7 — Third controlled real run *(ATTEMPTED; FAILED HONESTLY — reached the Judge, then crashed)*
+- [x] Executed (approved) the same 2-turn command into a fresh dir `results/real_run_20260602_2037`
+- **Outcome (furthest yet):** **both child turns accepted** (regeneration + margin worked); run **reached the provider-backed Judge**, which returned **empty/non-JSON** → `JudgeError`. The runner did **not** catch it → CLI **crashed (traceback)** and **no artifacts were written** (`results/real_run_20260602_2037/` never created). No winner; nothing fabricated.
+- **Diagnosis:** provider-backed Judge failure was not crash-safe (JudgeError outside the runner's caught tuple).
+
+### Phase 7.8 — Graceful provider-backed Judge failure *(created/in progress; review/commit pending — NO real run)*
+- [x] `runner.py` — import `JudgeError`; add it to the caught tuple in `run()` so a non-JSON/empty/invalid judge verdict yields `failed_protocol` (no crash); accepted turns + cost metrics preserved; artifacts written when `output_dir` set; no winner
+- [x] `prompts/protocol/final_judgment.md` — hardened: return exactly one JSON object, no markdown/code fence/prose/empty response (mitigation, not a guarantee)
+- [x] Tests: non-JSON judge → failed result (no raise), accepted child turns preserved, `error_report.md` + transcript + cost_report written, no winner; existing success/mock paths unchanged
+- **No real Claude/LLM call; no live ddgs/web search; all three failed-run dirs untouched/uncommitted**
+- **Remaining (honest):** root cause (real Claude returned non-JSON) not eliminated — only made graceful; fourth real run not yet executed
+- [ ] **Human review** → **ChatGPT approval** → **commit** (Phase 7.8)
 
 ---
 

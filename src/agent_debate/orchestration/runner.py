@@ -24,6 +24,7 @@ from agent_debate.orchestration.watchdog import Watchdog, WatchdogError
 from agent_debate.providers.base import ProviderError
 from agent_debate.quality.gatekeeper import Gatekeeper, GatekeeperError
 from agent_debate.results.cost_tracker import CostTracker
+from agent_debate.results.scoring import JudgeError
 from agent_debate.results.transcript_writer import TranscriptWriter
 
 
@@ -62,8 +63,10 @@ class DebateRunner:
         self._cost.start()
         try:
             self._run_rounds(session_id, turns_per_side, retry_cap, store, messages)
+            # JudgeError (e.g. provider-backed Judge returns empty/non-JSON) is a controlled
+            # failure: keep accepted turns, write artifacts, declare no winner — never crash.
             judgment = self._judge.judge(session_id, tie_break_priority, messages)
-        except (ProviderError, WatchdogError, GatekeeperError, ProtocolFailure) as exc:
+        except (ProviderError, WatchdogError, GatekeeperError, ProtocolFailure, JudgeError) as exc:
             status = RunStatus.FAILED_PROTOCOL
             errors.append(f"{type(exc).__name__}: {exc}")
         self._cost.stop()

@@ -27,6 +27,7 @@ BAD_VERDICTS = [
     '{"winner_role": "pro", "loser_role": "pro", "reasoning": "x"}',
     '{"winner_role": "pro", "loser_role": "con", "reasoning": ""}',
 ]
+ARTIFACTS = ("transcript.jsonl", "transcript.md", "cost_report.json")
 CLEAN = "AI coding agents help students learn faster."
 COLLAPSE = "I agree with the opponent completely."
 LIMIT = 160
@@ -105,9 +106,18 @@ def test_judge_provider_backed_invalid_rejected(verdict: str) -> None:
         judge.judge("s1", ["con", "pro"], messages=[])
 
 
+def test_judge_error_is_graceful_failure(tmp_path: Path) -> None:
+    # Non-JSON judge output -> JudgeError -> failed_protocol (no crash), turns + artifacts kept.
+    runner = make_runner([CLEAN], [CLEAN], judge_provider=MockProvider(["not json at all"]))
+    result = _run(runner, turns=1, output_dir=tmp_path)
+    assert not result.is_successful and result.final_judgment is None
+    assert any("JudgeError" in e for e in result.errors) and len(result.messages) == 2
+    assert (tmp_path / "error_report.md").is_file()
+    assert all((tmp_path / n).is_file() for n in ARTIFACTS)
+
+
 def test_runner_retry_sends_error_aware_regeneration_prompt() -> None:
-    # Over-limit first attempt, then a short one: the runner must send a CHANGED, error-aware
-    # prompt on retry (not the identical original), and recover to an accepted turn.
+    # Over-limit first attempt then a short one: retry prompt must change and recover.
     pro = _Rec([" ".join(["w"] * (LIMIT + 40)), "Short valid pro argument."])
     runner = make_runner([], ["Short valid con argument."], prov=pro)
     result = _run(runner, turns=1)
@@ -131,19 +141,10 @@ def test_retry_exhaustion_fails() -> None:
 
 def test_provider_timeout_fails() -> None:
     result = _run(make_runner([CLEAN], [CLEAN], pro_timeout=True), turns=1)
-    assert not result.is_successful
-    assert any("Timeout" in error for error in result.errors)
+    assert not result.is_successful and any("Timeout" in e for e in result.errors)
 
 
 def test_watchdog_failure_fails() -> None:
     runner = make_runner([CLEAN, CLEAN], [CLEAN, CLEAN], watchdog=Watchdog(max_stalled_checks=0))
     result = _run(runner)
-    assert not result.is_successful
-    assert any("stalled" in error.lower() for error in result.errors)
-
-
-def test_artifacts_written_only_under_tmp_path(tmp_path: Path) -> None:
-    _run(make_runner([CLEAN, CLEAN], [CLEAN, CLEAN]), output_dir=tmp_path)
-    assert (tmp_path / "transcript.jsonl").is_file()
-    assert (tmp_path / "transcript.md").is_file()
-    assert (tmp_path / "cost_report.json").is_file()
+    assert not result.is_successful and any("stalled" in e.lower() for e in result.errors)

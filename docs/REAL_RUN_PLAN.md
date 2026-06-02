@@ -88,7 +88,7 @@ uv run agent-debate run \
 4. If a config change is needed (e.g. timeout), commit it as a normal reviewed change
    before re-running.
 
-## 8. Readiness status (updated after Phase 7.6)
+## 8. Readiness status (updated after Phase 7.8)
 - **RESOLVED — prompt wiring (Pro/Con).** `DebateAgent.produce` renders the project-local
   Pro/Con template (filling `{topic}`) + per-turn context (role/side, `claim_id`,
   `opponent_claim_id`, available `evidence_refs`, JSON instruction) and **sends it to the
@@ -149,10 +149,25 @@ uv run agent-debate run \
   unchanged (2); `child_turn_max_words` unchanged (220). Tested offline only — a mocked
   over-limit first attempt now recovers on a shorter retry; **no real Claude/ddgs call in
   this phase**.
-- **PENDING — a third controlled real run.** Not yet executed. It **must use a fresh
-  timestamped directory** (e.g. `results/real_run_YYYYMMDD_HHMM`) and **must not reuse or
-  overwrite** `results/real_run_20260602_1837/` or `results/real_run_20260602_1912/`.
-  Still 2 turns/side first.
+- **ATTEMPTED & FAILED HONESTLY (Phase 7.7) — third controlled real run.** Furthest yet:
+  **both child turns were accepted** (regeneration + margin worked) and the run **reached
+  the provider-backed Judge** for the first time. Claude then returned **empty/non-JSON**
+  for the final verdict → `parse_judgment` raised `JudgeError`, which the runner did **not**
+  catch → the CLI **crashed with a traceback** and **no artifacts were written** (the
+  `results/real_run_20260602_2037/` directory was never created). No winner; nothing
+  fabricated. This revealed a robustness gap, not a regression.
+- **FIX APPLIED (Phase 7.8) — graceful provider-backed Judge failure.** `JudgeError` is now
+  caught by `runner.run()` alongside the other controlled failures: a non-JSON/empty/invalid
+  judge verdict yields a `failed_protocol` result that **preserves the accepted child
+  turns**, keeps cost metrics, and (when `output_dir` is set) writes `transcript.jsonl`,
+  `transcript.md`, `cost_report.json`, and `error_report.md` — **no crash, no fabricated
+  winner**. `final_judgment.md` was hardened to demand exactly one JSON object (no markdown,
+  no code fence, no prose, no empty response) — a mitigation, not a guarantee. Tested
+  offline only; **no real Claude/ddgs call in this phase**.
+- **PENDING — a fourth controlled real run.** Not yet executed. It **must use a fresh
+  timestamped directory** and **must not reuse or overwrite**
+  `results/real_run_20260602_1837/`, `results/real_run_20260602_1912/`, or
+  `results/real_run_20260602_2037/` (if it is ever created). Still 2 turns/side first.
 
 **Consequence:** a real run now genuinely exercises real Claude argument generation
 (meaningful prompts), real ddgs evidence, parent-mediated routing, regeneration, and
