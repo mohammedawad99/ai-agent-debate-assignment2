@@ -263,6 +263,15 @@ gate is **not** unlocked. "Created" ≠ "Reviewed."
 - **Not done:** real run NOT executed; no Claude prompt sent; no web call; `ddgs` not installed; no results/evidence produced
 - [ ] **Human review** → **ChatGPT approval** → **commit** (Phase 7.0)
 
+### Phase 7.1 — Claude CLI login preflight *(created/in progress; review/commit pending — NO real run executed)*
+- [x] Safe environment checks only *(`git status` clean; Claude CLI on PATH at `~/.local/bin/claude`; `claude --version` → `2.1.160 (Claude Code)`; inspected `claude --help` + `claude auth --help`)*
+- [x] **Login VERIFIED** via the non-prompt `claude auth status` → `loggedIn: true` (claude.ai, first-party). **No prompt sent, no debate run, no API debate call.** (Status only; email/orgId/account/subscription details intentionally not persisted here.) Auth is time-bound — **re-check immediately before the Phase 7 real run.**
+- [x] Project checks green: `pytest` 211 passed; required-docs / file-lengths / json-configs OK; `find results logs` → only `.gitkeep`
+- [x] Updated `docs/REAL_RUN_PLAN.md` §3 + §8 *(Claude CLI installed + login verified; real run still not executed)*
+- **No code changed; no provider executed; no live ddgs search; no artifacts created**
+- **Remaining (honest):** the controlled real run itself (debate prompt + live `ddgs` + artifacts) is still Phase 7 proper — NOT executed
+- [ ] **Human review** → **ChatGPT approval** → **commit** (Phase 7.1)
+
 ---
 
 ## Phase 7 — Real Debate Run *(NOT started — preflight plan in `docs/REAL_RUN_PLAN.md`)*

@@ -22,10 +22,13 @@ Only the third mode counts as the real run.
 - [ ] **Clean git working tree** (`git status` empty). *(verified clean at plan time)*
 - [ ] **Quality gate green:** `ruff check`, `pytest`, required-docs, file-lengths,
       json-configs, coverage ≥ 85%. *(verified green at plan time)*
-- [ ] **Claude CLI installed and logged in.** Installed: **yes** (`claude --version` →
-      `2.1.159`). **Login NOT verified by this plan** — verify manually (open the Claude
-      CLI session) **without** sending a debate prompt. The run aborts cleanly with
-      `auth_failure`/`ProviderError` if not logged in.
+- [x] **Claude CLI installed and logged in.** Installed: **yes** (`claude --version` →
+      `2.1.160`, Claude CLI on PATH at `~/.local/bin/claude`). **Login VERIFIED in Phase
+      7.1** via the non-prompt `claude auth status` (`loggedIn: true`, auth method
+      `claude.ai`, first-party). No debate prompt was sent. The run would still abort
+      cleanly with `auth_failure`/`ProviderError` if a future session is logged out.
+      **Auth is time-bound. Re-run `claude auth status` immediately before the Phase 7
+      controlled real run; do not rely only on the Phase 7.1 snapshot.**
 - [x] **ddgs available.** **Installed in Phase 6.8** via `uv add ddgs` (declared in
       `pyproject.toml` + pinned in `uv.lock`); verified `ddgs_available=True` by an
       import-only check. **No live `ddgs` query has been run yet** — the real search path
@@ -85,7 +88,7 @@ uv run agent-debate run \
 4. If a config change is needed (e.g. timeout), commit it as a normal reviewed change
    before re-running.
 
-## 8. Readiness status (updated after Phase 6.8)
+## 8. Readiness status (updated after Phase 7.1)
 - **RESOLVED — prompt wiring (Pro/Con).** `DebateAgent.produce` renders the project-local
   Pro/Con template (filling `{topic}`) + per-turn context (role/side, `claim_id`,
   `opponent_claim_id`, available `evidence_refs`, JSON instruction) and **sends it to the
@@ -110,10 +113,15 @@ uv run agent-debate run \
 - **REMAINS — collapse/off-side detection is marker-based** offline stand-ins.
 - **RESOLVED — `ddgs` installed (Phase 6.8).** Declared dependency + pinned lock;
   import-verified (`ddgs_available=True`). **No live query executed yet.**
-- **PENDING — Claude CLI login not verified** (verify manually, no prompt). Whether the
-  real run uses `--judge-provider claude_cli` (content-aware scoring) or keeps the
-  deterministic default is now a per-run flag decision, not a code change. The first
-  controlled real run remains **2 turns per side**.
+- **RESOLVED — Claude CLI login verified (Phase 7.1).** `claude auth status` reported
+  `loggedIn: true` (claude.ai, first-party) — a status check only, **no prompt sent, no
+  debate run**. Auth is time-bound — **re-check `claude auth status` immediately before
+  the real run** (do not rely on this snapshot). Whether the real run uses
+  `--judge-provider claude_cli` (content-aware scoring) or keeps the deterministic default
+  is a per-run flag decision, not a code change. The first controlled real run remains
+  **2 turns per side**.
+- **PENDING — the controlled real run itself has NOT been executed.** No debate prompt,
+  no live `ddgs` query, no artifacts yet (Phase 7 proper).
 
 **Consequence:** a real run now genuinely exercises real Claude argument generation
 (meaningful prompts), real ddgs evidence, parent-mediated routing, regeneration, and
