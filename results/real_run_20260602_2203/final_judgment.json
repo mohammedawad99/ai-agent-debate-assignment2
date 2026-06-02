@@ -1,0 +1,34 @@
+{
+  "session_id": "configured",
+  "winner_role": "con",
+  "loser_role": "pro",
+  "scores": {
+    "pro": {
+      "clarity": 4,
+      "responsiveness": 3,
+      "evidence_quality": 3,
+      "position_consistency": 4,
+      "respectful_tone": 4,
+      "persuasive_force": 3,
+      "total": 21,
+      "protocol_violations": 0,
+      "regeneration_count": 0
+    },
+    "con": {
+      "clarity": 4,
+      "responsiveness": 5,
+      "evidence_quality": 3,
+      "position_consistency": 4,
+      "respectful_tone": 4,
+      "persuasive_force": 5,
+      "total": 25,
+      "protocol_violations": 0,
+      "regeneration_count": 0
+    }
+  },
+  "tie_break_used": false,
+  "tie_break_reason": null,
+  "reasoning": "Con wins on the strength of responsiveness and persuasive force. Across both exchanges, Con directly engaged Pro's claims rather than restating its own thesis: it conceded the valid premise (AI coding agents reflect modern industry practice) before isolating the logical flaw in Pro's case \u2014 that mandating tool use 'conflates familiarity with competence.' This distinction was the pivotal move of the debate and Pro never adequately rebutted it. On clarity, both sides were articulate, but Con's framing (familiarity vs. competence; requirement vs. exposure) was sharper and easier to follow. On responsiveness, Con consistently addressed Pro's strongest point (industry readiness) and reframed it, whereas Pro's second turn largely anticipated objections ('opponents worry...') rather than answering Con's specific challenge. On evidence quality, the sides were roughly even, with both appealing to industry practice and pedagogical concerns; neither marshaled decisive empirical data, so this dimension did not separate them. On position consistency, both held their lines without contradiction. On respectful tone, both were courteous and acknowledged the opponent's merits. The deciding margin is persuasive force: Con's competence-over-familiarity argument exposed an unaddressed gap in the proposition that requiring (not merely permitting) AI agents advances genuine learning, giving Con the more cogent overall case.",
+  "limitations": "Provider-backed final judgment from the configured Judge provider; verdict parsed and strictly validated.",
+  "created_at": "2026-01-01T00:00:00Z"
+}

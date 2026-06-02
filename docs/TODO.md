@@ -348,7 +348,21 @@ gate is **not** unlocked. "Created" ≠ "Reviewed."
 - [x] Tests (`test_transcript_writer.py`): success writes `final_judgment.json` with winner/loser/reasoning/scores/limitations; `transcript.md` includes reasoning + winner; failed run writes no `final_judgment.json`; `transcript.jsonl` still streams accepted turns.
 - **No real Claude/LLM call; no live ddgs/web search; all 4 real-run dirs untouched/uncommitted**
 - **Remaining (honest):** the existing `results/real_run_20260602_2125/` predates this and records only the winner — a **fresh** real run is needed to produce richer evidence; full 10/side run NOT done
-- [ ] **Human review** → **ChatGPT approval** → **commit** (Phase 7.14)
+- [x] **Human review** → **ChatGPT approval** → **commit** (Phase 7.14) *(committed `0d24443`)*
+
+### Phase 7.15 — Fresh 2-turn real run with full artifacts *(✅ SUCCESS)*
+- [x] Executed (approved) the 2-turn command into a fresh dir `results/real_run_20260602_2203`
+- **Outcome:** `status: success`, winner con, 4 turns accepted, `retry_count: 0`, ~104 s; wrote `transcript.md` (Final Judgment section), `transcript.jsonl`, `cost_report.json`, **`final_judgment.json`** (content-derived reasoning + per-side scores Pro 21 / Con 25); no `error_report.md`.
+
+### Phase 7.16 — Successful evidence artifact review *(read-only; no changes)*
+- [x] Reviewed `…_2203/`: 4 accepted turns (word counts ≤220), 20 evidence refs, valid 0–5 scores with coherent totals, substantial content-derived reasoning, **no PII/secrets**. Suitable as submission evidence.
+
+### Phase 7.17 — Select successful evidence run *(created/in progress; review/commit pending)*
+- [x] Selected `results/real_run_20260602_2203/` as the **clean 2-turn successful evidence run** (not 10/side).
+- [x] Docs updated: README (Evidence run section + status), REAL_RUN_PLAN (7.15 success + 7.17 selection), this TODO. Failed attempts (`…_1837/`, `…_1912/`, `…_2058/`) + pre-enhancement `…_2125/` remain **untracked audit history**, not selected.
+- **No real Claude/LLM call; no live ddgs/web search; artifact files unmodified; nothing committed**
+- **Next step:** review docs → if approved, commit the selected evidence artifacts (`…_2203/`) + these doc updates. Full 10/side run remains optional/pending. **Phase 7 NOT complete.**
+- [ ] **Human review** → **ChatGPT approval** → **commit** (Phase 7.17)
 
 ---
 

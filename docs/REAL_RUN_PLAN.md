@@ -88,7 +88,7 @@ uv run agent-debate run \
 4. If a config change is needed (e.g. timeout), commit it as a normal reviewed change
    before re-running.
 
-## 8. Readiness status (updated after Phase 7.14)
+## 8. Readiness status (updated after Phase 7.17)
 - **RESOLVED — prompt wiring (Pro/Con).** `DebateAgent.produce` renders the project-local
   Pro/Con template (filling `{topic}`) + per-turn context (role/side, `claim_id`,
   `opponent_claim_id`, available `evidence_refs`, JSON instruction) and **sends it to the
@@ -198,9 +198,18 @@ uv run agent-debate run \
   run; `transcript.jsonl` unchanged). Verified offline (mock judgment); **no real Claude/ddgs
   call in this phase**. The existing `results/real_run_20260602_2125/` predates this and
   still records only the winner.
-- **PENDING — a fresh evidence run + the full 10/side run.** Not yet executed. The next real
-  run (which will produce the richer artifacts) **must use a fresh timestamped directory**,
-  never reusing a prior run dir. 10/side remains a separate, later step.
+- **SUCCEEDED with full artifacts (Phase 7.15) — fresh 2-turn real run.**
+  `results/real_run_20260602_2203/`: `status: success`, winner con, 4 turns accepted,
+  `retry_count: 0`; `claude_cli` provider + `ddgs` search + `claude_cli` provider-backed
+  Judge. Wrote `transcript.md` (with Final Judgment), `transcript.jsonl`, `cost_report.json`,
+  and **`final_judgment.json`** (content-derived reasoning + per-side 0–5 scores; Pro 21 /
+  Con 25); no `error_report.md`. No secrets/PII (reviewed in Phase 7.16).
+- **SELECTED EVIDENCE (Phase 7.17).** `results/real_run_20260602_2203/` is the **selected
+  clean successful evidence run** (2 turns/side — **not** the full 10/side run). The earlier
+  **failed** attempts (`…_1837/`, `…_1912/`, `…_2058/`) and the pre-enhancement success
+  (`…_2125/`) remain **untracked audit history**, not selected, unless explicitly committed
+  later. The full **10/side run remains optional/pending**; final submission packaging is not
+  yet finalized.
 
 **Consequence:** a real run now genuinely exercises real Claude argument generation
 (meaningful prompts), real ddgs evidence, parent-mediated routing, regeneration, and
