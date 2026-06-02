@@ -362,7 +362,24 @@ gate is **not** unlocked. "Created" ≠ "Reviewed."
 - [x] Docs updated: README (Evidence run section + status), REAL_RUN_PLAN (7.15 success + 7.17 selection), this TODO. Failed attempts (`…_1837/`, `…_1912/`, `…_2058/`) + pre-enhancement `…_2125/` remain **untracked audit history**, not selected.
 - **No real Claude/LLM call; no live ddgs/web search; artifact files unmodified; nothing committed**
 - **Next step:** review docs → if approved, commit the selected evidence artifacts (`…_2203/`) + these doc updates. Full 10/side run remains optional/pending. **Phase 7 NOT complete.**
-- [ ] **Human review** → **ChatGPT approval** → **commit** (Phase 7.17)
+- [x] **Human review** → **ChatGPT approval** → **commit** (Phase 7.17) *(committed `f3617ad`)*
+
+### Phase 8.0 — Final requirement/readiness audit *(read-only)*
+- [x] Gates green; selected 2-turn evidence committed; found the 10/side acceptance gap (AC-01/PG-1/FR-07) — 2-turn is dev-sized, target is 10/side. Recommended a full 10/side run.
+
+### Phase 8.1 — Full 10/side real run *(✅ SUCCESS)*
+- [x] Executed (approved) `run --provider claude_cli --search ddgs --judge-provider claude_cli --turns-per-side 10 --output-dir results/real_run_20260602_2227_full10`
+- **Outcome:** `status: success`, winner con, **20 accepted child turns (10 Pro + 10 Con)**, `retry_count: 0`, 20 provider calls, 20 ddgs searches, ~459 s. Wrote `transcript.md` (Final Judgment), `transcript.jsonl`, `cost_report.json`, `final_judgment.json` (Pro 22 / Con 27); no `error_report.md`. **Closes AC-01/PG-1/FR-07.**
+
+### Phase 8.2 — Full 10/side evidence review *(read-only)*
+- [x] Reviewed `…_2227_full10/`: 20 accepted turns (10/10), all word counts ≤220, 20 evidence refs, no rejected turns, coherent scores (winner = higher total), substantial content-derived reasoning, **no PII/secrets**. Suitable as primary evidence; no rerun needed.
+
+### Phase 8.3 — Select full10 as primary evidence *(created/in progress; review/commit pending)*
+- [x] Selected `results/real_run_20260602_2227_full10/` as the **primary/canonical full evidence run**; `results/real_run_20260602_2203/` kept as **secondary 2-turn quick-demo** (still committed).
+- [x] Docs updated: README (status + Evidence run primary/secondary), REAL_RUN_PLAN (8.1 success + 8.3 selection), this TODO. Failed/pre-enhancement dirs remain **untracked**, not selected.
+- **No real Claude/LLM call; no live ddgs/web search; artifact files unmodified; nothing committed**
+- **Next step:** review docs → if approved, commit the full10 artifacts (`…_2227_full10/`, 4 explicit paths) + these doc updates. **Project NOT marked done — final packaging (screenshots/polish) still pending.**
+- [ ] **Human review** → **ChatGPT approval** → **commit** (Phase 8.3)
 
 ---
 

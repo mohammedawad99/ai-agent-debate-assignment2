@@ -4,16 +4,17 @@ A Python project **designed to orchestrate** a structured, supervised debate bet
 AI agents (**Pro** and **Con**) moderated by a **Parent/Judge** agent that will route
 every message, enforce the rules, and declare a single winner.
 
-> **Status: early development (Phase 7.17 — selected successful 2-turn evidence run).**
-> A fresh successful 2-turn real run now exists **with full artifacts** —
-> `results/real_run_20260602_2203/` (provider `claude_cli`, search `ddgs`, provider-backed
-> Judge; `status: success`, winner con, 4 turns accepted, 0 retries). It includes
-> `transcript.md` (with a Final Judgment section), `transcript.jsonl`, `cost_report.json`,
-> and `final_judgment.json` (Judge reasoning + per-side 0–5 scores); no `error_report.md`.
-> It is selected as the clean evidence run (see **Evidence run** below). **This is a
-> 2-turn/side run, not the full 10/side run, which has NOT been run.** Run artifacts are
-> still untracked pending an explicit commit decision; final submission packaging is not
-> finalized.
+> **Status: early development (Phase 8.3 — primary full 10/side evidence run selected).**
+> A successful **full 10-turns-per-side** real run now exists —
+> `results/real_run_20260602_2227_full10/` (provider `claude_cli`, search `ddgs`,
+> provider-backed Judge; `status: success`, winner con, **20 accepted child turns = 10 Pro
+> + 10 Con**, 0 retries, 20 evidence refs). It satisfies the documented 10/side acceptance
+> target (AC-01 / PG-1 / FR-07) and includes `transcript.md` (with a Final Judgment
+> section), `transcript.jsonl`, `cost_report.json`, and `final_judgment.json` (Judge
+> reasoning + per-side 0–5 scores); no `error_report.md`. It is the **primary/canonical
+> evidence run** (see **Evidence run** below). The earlier `results/real_run_20260602_2203/`
+> (2-turn/side) remains committed as **secondary quick-demo** evidence. **Final submission
+> packaging (e.g. screenshots, final polish) is not yet complete.**
 >
 > **Status: early development (Phase 7.14 — persist Judge reasoning/scores in artifacts).**
 > On a successful run the writer now persists the Judge's verdict: `transcript.md` gains a
@@ -169,23 +170,32 @@ installed `ddgs` package (lazily imported). The Judge defaults to `--judge-provi
 (deterministic/offline scoring); `mock` uses an offline canned verdict and `claude_cli`
 builds the provider-backed Judge **only when explicitly selected** (warned, never run at
 construction). **Earlier real runs failed honestly and are documented in
-[`docs/REAL_RUN_PLAN.md`](docs/REAL_RUN_PLAN.md); a successful 2-turn real run now exists
-(see Evidence run below). The full 10/side run has not been run yet.**
+[`docs/REAL_RUN_PLAN.md`](docs/REAL_RUN_PLAN.md); a successful full 10/side real run now
+exists and is the primary evidence (see Evidence run below), with an earlier 2-turn run kept
+as secondary demo evidence.**
 
-## Evidence run (selected)
-The selected clean successful real-run evidence is **`results/real_run_20260602_2203/`** — a
-**2-turn/side controlled real run** (not the full 10/side run). It used the **`claude_cli`**
-provider, **`ddgs`** live search, and the **`claude_cli` provider-backed Judge**, and
-**succeeded with `winner: con`** (all 4 child turns accepted, `retry_count: 0`). It contains:
-- `transcript.md` — human-readable debate + a **Final Judgment** section
-- `transcript.jsonl` — the accepted-turn stream (per-turn evidence refs, word counts)
-- `final_judgment.json` — the Judge's **reasoning + per-side 0–5 scores** (content-derived)
+## Evidence run (primary)
+The **primary/canonical** successful real-run evidence is
+**`results/real_run_20260602_2227_full10/`** — a **full 10-turns-per-side controlled real
+run** that satisfies the documented 10/side acceptance target (AC-01 / PG-1 / FR-07). It used
+the **`claude_cli`** provider, **`ddgs`** live search, and the **`claude_cli` provider-backed
+Judge**, and **succeeded with `winner: con`** (**20 accepted child turns — 10 Pro + 10 Con**,
+`retry_count: 0`, 20 evidence refs). It contains:
+- `transcript.md` — human-readable debate (all 20 turns) + a **Final Judgment** section
+- `transcript.jsonl` — the accepted-turn stream (per-turn evidence refs, word counts ≤220)
+- `final_judgment.json` — the Judge's **reasoning + per-side 0–5 scores** (content-derived;
+  Pro 22 / Con 27)
 - `cost_report.json` — proxy resource estimates (labeled estimates, not exact billing)
 
-No `error_report.md` exists because the run succeeded. Earlier **failed** attempts are
-documented in `docs/REAL_RUN_PLAN.md` but are **not** selected as the clean evidence run.
-This is the selected 2-turn evidence; a full 10/side run remains optional/pending, and final
-submission packaging is not yet finalized.
+No `error_report.md` exists because the run succeeded.
+
+**Secondary (quick-demo) evidence:** `results/real_run_20260602_2203/` — an earlier
+**2-turn/side** successful run (same providers, winner con), committed previously and kept as
+a fast end-to-end demonstration. It is no longer the canonical run.
+
+Earlier **failed/pre-enhancement** attempts are documented in `docs/REAL_RUN_PLAN.md` but are
+**not** selected or committed as evidence. **Final submission packaging (e.g. screenshots,
+final polish) is not yet complete.**
 
 ## Planning & design documents
 - [`docs/REQUIREMENTS_AUDIT.md`](docs/REQUIREMENTS_AUDIT.md)

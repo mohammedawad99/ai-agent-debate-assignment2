@@ -88,7 +88,7 @@ uv run agent-debate run \
 4. If a config change is needed (e.g. timeout), commit it as a normal reviewed change
    before re-running.
 
-## 8. Readiness status (updated after Phase 7.17)
+## 8. Readiness status (updated after Phase 8.3)
 - **RESOLVED — prompt wiring (Pro/Con).** `DebateAgent.produce` renders the project-local
   Pro/Con template (filling `{topic}`) + per-turn context (role/side, `claim_id`,
   `opponent_claim_id`, available `evidence_refs`, JSON instruction) and **sends it to the
@@ -204,12 +204,21 @@ uv run agent-debate run \
   Judge. Wrote `transcript.md` (with Final Judgment), `transcript.jsonl`, `cost_report.json`,
   and **`final_judgment.json`** (content-derived reasoning + per-side 0–5 scores; Pro 21 /
   Con 25); no `error_report.md`. No secrets/PII (reviewed in Phase 7.16).
-- **SELECTED EVIDENCE (Phase 7.17).** `results/real_run_20260602_2203/` is the **selected
-  clean successful evidence run** (2 turns/side — **not** the full 10/side run). The earlier
-  **failed** attempts (`…_1837/`, `…_1912/`, `…_2058/`) and the pre-enhancement success
-  (`…_2125/`) remain **untracked audit history**, not selected, unless explicitly committed
-  later. The full **10/side run remains optional/pending**; final submission packaging is not
-  yet finalized.
+- **SELECTED 2-TURN EVIDENCE (Phase 7.17).** `results/real_run_20260602_2203/` was committed
+  as the clean 2-turn/side successful evidence run.
+- **SUCCEEDED — FULL 10/side run (Phase 8.1).** `results/real_run_20260602_2227_full10/`:
+  `status: success`, winner con, **20 accepted child turns (10 Pro + 10 Con)**,
+  `retry_count: 0`, 20 provider calls, 20 ddgs searches, ~459 s. Wrote `transcript.md` (Final
+  Judgment), `transcript.jsonl`, `cost_report.json`, **`final_judgment.json`** (content-derived
+  reasoning + per-side scores; Pro 22 / Con 27); no `error_report.md`. No secrets/PII
+  (reviewed in Phase 8.2). **This closes the 10/side acceptance gap (AC-01 / PG-1 / FR-07).**
+- **PRIMARY EVIDENCE SELECTED (Phase 8.3).** `results/real_run_20260602_2227_full10/` is the
+  **primary/canonical** successful evidence run; `results/real_run_20260602_2203/` remains
+  **secondary quick-demo** evidence. The **failed** attempts (`…_1837/`, `…_1912/`, `…_2058/`)
+  and the pre-enhancement success (`…_2125/`) remain **untracked audit history**, not
+  selected, unless explicitly committed later.
+- **REMAINING — final packaging.** Optional screenshots, final README polish, and
+  doc-block cleanup. Final submission packaging is **not yet complete**.
 
 **Consequence:** a real run now genuinely exercises real Claude argument generation
 (meaningful prompts), real ddgs evidence, parent-mediated routing, regeneration, and

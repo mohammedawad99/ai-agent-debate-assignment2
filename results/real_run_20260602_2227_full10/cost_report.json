@@ -1,0 +1,11 @@
+{
+  "provider_call_count": 20,
+  "search_call_count": 20,
+  "retry_count": 0,
+  "estimated_input_tokens": 30,
+  "estimated_output_tokens": 7177,
+  "estimated_total_tokens": 7207,
+  "runtime_seconds": 459.2478173629934,
+  "token_basis": "chars/4",
+  "note": "token counts are ESTIMATES, not exact provider billing"
+}

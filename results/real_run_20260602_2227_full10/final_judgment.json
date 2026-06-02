@@ -1,0 +1,34 @@
+{
+  "session_id": "configured",
+  "winner_role": "con",
+  "loser_role": "pro",
+  "scores": {
+    "pro": {
+      "clarity": 4,
+      "responsiveness": 3,
+      "evidence_quality": 3,
+      "position_consistency": 4,
+      "respectful_tone": 5,
+      "persuasive_force": 3,
+      "total": 22,
+      "protocol_violations": 0,
+      "regeneration_count": 0
+    },
+    "con": {
+      "clarity": 5,
+      "responsiveness": 4,
+      "evidence_quality": 4,
+      "position_consistency": 5,
+      "respectful_tone": 5,
+      "persuasive_force": 4,
+      "total": 27,
+      "protocol_violations": 0,
+      "regeneration_count": 0
+    }
+  },
+  "tie_break_used": false,
+  "tie_break_reason": null,
+  "reasoning": "Both sides debated competently and maintained respectful tone throughout, but the Con side wins on the strength of its framing and persuasive force. On clarity, Con consistently articulated a single coherent thesis \u2014 that a software engineering course exists to build foundational competence, and that mandating AI coding agents conflates a tool with a curriculum \u2014 and returned to it without drift, scoring high on position_consistency. On responsiveness, Con directly engaged Pro's central claim (that requiring AI agents mirrors industry practice and prepares students for the workplace) and reframed it effectively, distinguishing what industry does from what pedagogy requires; this rebuttal was sharper than Pro's, which largely repeated the 'modernizes learning, does not weaken it' assertion across multiple rounds without advancing new evidence. On evidence_quality, neither side marshaled strong empirical support, but Con's argument from the purpose of a course (assessment validity, the risk of hollowing out grasp of fundamentals before students can critically supervise the tool) was more analytically grounded than Pro's appeal to the prevalence of AI-assisted software. On persuasive_force, Con's distinction between 'requiring' versus 'permitting' a tool, and its point that you cannot supervise what you never learned to do, was the most decisive move in the debate and went insufficiently answered. Pro scored well on clarity and respectful_tone but lost ground on responsiveness and persuasive_force due to repetition. This is a substantive decision on the merits; no technical tie-break was required.",
+  "limitations": "Provider-backed final judgment from the configured Judge provider; verdict parsed and strictly validated.",
+  "created_at": "2026-01-01T00:00:00Z"
+}
