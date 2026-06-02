@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
 from agent_debate.agents.debate_agent import ConAgent, ProAgent
 from agent_debate.agents.judge import JudgeAgent
 from agent_debate.orchestration.runner import DebateRunner
@@ -11,13 +13,19 @@ from agent_debate.orchestration.watchdog import Watchdog
 from agent_debate.providers.mock_provider import MockProvider
 from agent_debate.quality.gatekeeper import Gatekeeper
 from agent_debate.results.cost_tracker import CostTracker
+from agent_debate.results.scoring import JudgeError
 from agent_debate.search.mock_search import MockSearchTool
+
+VALID_JUDGMENT = (
+    '{"winner_role": "pro", "loser_role": "con", "reasoning": "Pro was clearer.",'
+    ' "scores": {"pro": {"clarity": 5}, "con": {"clarity": 3}}}'
+)
 
 CLEAN = "AI coding agents help students learn faster."
 COLLAPSE = "I agree with the opponent completely."
 
 
-def make_runner(pro_r, con_r, *, pro_timeout=False, watchdog=None):  # noqa: ANN001
+def make_runner(pro_r, con_r, *, pro_timeout=False, watchdog=None, judge_provider=None):  # noqa: ANN001
     cost = CostTracker()
     search = MockSearchTool()
     pro = ProAgent(MockProvider(pro_r, raise_timeout=pro_timeout), search)
@@ -26,7 +34,7 @@ def make_runner(pro_r, con_r, *, pro_timeout=False, watchdog=None):  # noqa: ANN
     return DebateRunner(
         pro,
         con,
-        JudgeAgent(160),
+        JudgeAgent(160, judge_provider=judge_provider),
         cost_tracker=cost,
         gatekeeper=gate,
         watchdog=watchdog or Watchdog(),
@@ -50,6 +58,47 @@ def test_success_returns_one_winner() -> None:
     assert judgment is not None
     assert judgment.winner_role in {"pro", "con"}
     assert judgment.loser_role != judgment.winner_role
+
+
+def test_provider_backed_judge_via_runner() -> None:
+    verdict = '{"winner_role": "con", "loser_role": "pro", "reasoning": "Con was sharper."}'
+    runner = make_runner([CLEAN], [CLEAN], judge_provider=MockProvider([verdict]))
+    result = _run(runner, turns=1)
+    assert result.is_successful
+    assert result.final_judgment is not None
+    assert result.final_judgment.winner_role == "con"
+    assert "Provider-backed" in result.final_judgment.limitations
+
+
+def test_judge_deterministic_is_default() -> None:
+    judgment = JudgeAgent(160).judge("s1", ["con", "pro"])
+    assert judgment.winner_role in {"pro", "con"}
+    assert judgment.loser_role != judgment.winner_role
+    assert "Deterministic offline scoring" in judgment.limitations
+
+
+def test_judge_provider_backed_valid_judgment() -> None:
+    judge = JudgeAgent(160, judge_provider=MockProvider([VALID_JUDGMENT]))
+    judgment = judge.judge("s1", ["con", "pro"], messages=[{"sender_role": "pro", "argument": "x"}])
+    assert judgment.winner_role == "pro"
+    assert judgment.loser_role == "con"
+    assert judgment.reasoning == "Pro was clearer."
+    assert "Provider-backed" in judgment.limitations
+
+
+@pytest.mark.parametrize(
+    "verdict",
+    [
+        "{not json",
+        '{"winner_role": "maybe", "loser_role": "con", "reasoning": "x"}',
+        '{"winner_role": "pro", "loser_role": "pro", "reasoning": "x"}',
+        '{"winner_role": "pro", "loser_role": "con", "reasoning": ""}',
+    ],
+)
+def test_judge_provider_backed_invalid_rejected(verdict: str) -> None:
+    judge = JudgeAgent(160, judge_provider=MockProvider([verdict]))
+    with pytest.raises(JudgeError):
+        judge.judge("s1", ["con", "pro"], messages=[])
 
 
 def test_invalid_first_response_regenerates() -> None:

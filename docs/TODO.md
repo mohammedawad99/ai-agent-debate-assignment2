@@ -221,10 +221,20 @@ gate is **not** unlocked. "Created" ≠ "Reviewed."
 - **Resolved gap:** Pro/Con argument prompts now wired into runtime (REAL_RUN_PLAN §8 updated)
 - **Remaining gap (honest):** Judge final scoring still deterministic/offline (not content-derived); collapse/drift still marker-based; `ddgs` not installed; Claude login unverified
 - **No real Claude/web call; mock stays default**
-- [ ] **Human review** → **ChatGPT approval** → **commit** (Phase 6.5)
+- [x] **Human review** → **ChatGPT approval** → **committed** (Phase 6.5)
+
+### Phase 6.6 — Content-aware Judge readiness *(created; review/commit pending)*
+- [x] `agents/judge.py` *(optional `judge_provider`; `judge()` deterministic by default, provider-backed when supplied — renders final-judgment prompt incl. topic/transcript-summary/rubric/no-tie/tie-break, parses+validates JSON verdict; honest `limitations`)*
+- [x] `results/scoring.py` *(`parse_judgment` + `scores_from_data` + `JudgeError` — safe JSON validation, no eval: winner∈{pro,con}, loser opposite, reasoning required, 0–5 dim scores)*
+- [x] `orchestration/runner.py` *(passes accepted `messages` to `judge()` — one line; no behavior change for deterministic/mock)*
+- [x] Tests: deterministic default, provider-backed valid (MockProvider) selects one winner, invalid/bad-winner/tie/empty-reasoning rejected with `JudgeError`, end-to-end via runner; mock CLI unchanged
+- **Improved readiness:** optional content-aware Judge available (mock-tested), wired through the runner
+- **Remaining (honest):** no real Claude judgment run; `ddgs` not installed; Claude login unverified; no `judge_provider` wired into CLI/SDK yet
+- **No real Claude/web call; mock stays default**
+- [ ] **Human review** → **ChatGPT approval** → **commit** (Phase 6.6)
 
 ### Real-run prep (later)
-- [ ] (Optional) content-aware Judge scoring; declare `ddgs` optional extra
+- [ ] Decide whether the real run uses the provider-backed Judge; declare `ddgs` optional extra
 **Exit criteria:** All tests green; gates pass; no hardcoded params; **real evidence-backed run is Phase 7** (controlled, manual).
 
 ### Phase 7.0 — Real run preflight plan *(created; review/commit pending — NO real run executed)*

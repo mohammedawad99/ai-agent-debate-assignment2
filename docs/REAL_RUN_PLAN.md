@@ -84,23 +84,24 @@ uv run agent-debate run \
 4. If a config change is needed (e.g. timeout), commit it as a normal reviewed change
    before re-running.
 
-## 8. Readiness status (updated after Phase 6.5)
-- **RESOLVED — prompt wiring (Pro/Con).** `DebateAgent.produce` now renders the
-  project-local Pro/Con template (filling `{topic}`) and appends a per-turn context block
-  (role/side, `claim_id`, `opponent_claim_id`, available `evidence_refs`, JSON
-  instruction), and **sends that rendered prompt to the provider**. A real run now drives
-  Claude with meaningful local prompts, not the old `"Argue as {role}: {claim_id}"`.
-- **PARTIAL — Judge templates.** The Judge holds the project-local regeneration /
-  final-judgment / judge templates and can render them (`regeneration_prompt`,
-  `final_instructions`, `judge_instructions`). These are available for a future judge-LLM
-  path; the offline runner still uses deterministic review/scoring (no judge-LLM is
-  invoked in either mode).
-- **REMAINS — Judge scoring is deterministic/offline.** Final scoring is fixed scores +
-  configured tie-break (disclosed in `FinalJudgment.limitations`), **not** content-derived
-  persuasiveness. A content-aware Judge is future work.
+## 8. Readiness status (updated after Phase 6.6)
+- **RESOLVED — prompt wiring (Pro/Con).** `DebateAgent.produce` renders the project-local
+  Pro/Con template (filling `{topic}`) + per-turn context (role/side, `claim_id`,
+  `opponent_claim_id`, available `evidence_refs`, JSON instruction) and **sends it to the
+  provider** — meaningful local prompts, not the old `"Argue as {role}: {claim_id}"`.
+- **RESOLVED (readiness) — optional content-aware Judge.** When a `judge_provider` is
+  supplied, the Judge renders the final-judgment prompt (topic + transcript summary +
+  rubric + no-tie + tie-break rule), asks the provider for a JSON verdict, and
+  **parses/validates** it (exactly one winner, no tie, 0–5 scores; malformed → `JudgeError`).
+  The runner passes the transcript so this works end-to-end. **Tested with `MockProvider`
+  only; no real Claude judgment has been run.**
+- **REMAINS (by default) — deterministic/offline scoring.** With **no** judge provider
+  (the default, incl. the mock CLI), the Judge uses fixed scores + configured tie-break
+  (disclosed in `FinalJudgment.limitations`). The real run may opt into the provider path.
 - **REMAINS — collapse/off-side detection is marker-based** offline stand-ins.
 - **PENDING — `ddgs` not installed** (`uv add ddgs` before the run) and **Claude CLI
-  login not verified** (verify manually, no prompt).
+  login not verified** (verify manually, no prompt). No `judge_provider` is wired into the
+  CLI/SDK yet — a later step decides whether the real run uses the provider-backed Judge.
 
 **Consequence:** a real run now genuinely exercises real Claude argument generation
 (meaningful prompts), real ddgs evidence, parent-mediated routing, regeneration, and

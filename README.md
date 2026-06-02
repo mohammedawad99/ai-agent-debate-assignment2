@@ -4,16 +4,18 @@ A Python project **designed to orchestrate** a structured, supervised debate bet
 AI agents (**Pro** and **Con**) moderated by a **Parent/Judge** agent that will route
 every message, enforce the rules, and declare a single winner.
 
-> **Status: early development (Phase 6.5 — project-local prompts wired into runtime).**
-> The project-local **Pro/Con prompt templates are now rendered and sent to the
-> provider** at run time (the Judge also holds renderable regeneration/final-judgment
-> templates), so a future real run uses meaningful local prompts instead of a minimal
-> hardcoded string. **Mock mode remains the default** (mocks ignore the prompt, so
-> offline behavior is unchanged). **The Judge's final scoring is still deterministic/
-> offline** (fixed scores + configured tie-break — disclosed in `FinalJudgment.limitations`),
-> **not** content-derived persuasiveness. **No real evidence-backed debate has been
-> executed** — no Claude prompt sent, no web search, `ddgs` not installed. A controlled
-> real-run plan is in [`docs/REAL_RUN_PLAN.md`](docs/REAL_RUN_PLAN.md).
+> **Status: early development (Phase 6.6 — optional content-aware Judge).**
+> The project-local Pro/Con prompts are wired into the runtime provider call (6.5), and
+> the Judge now has an **optional provider-backed final-judgment path**: when a
+> `judge_provider` is supplied, the Judge renders the final-judgment prompt (topic +
+> transcript summary + rubric + no-tie + tie-break rule), asks the provider for a JSON
+> verdict, and **parses/validates it** (exactly one winner, no tie, 0–5 scores; malformed
+> output is rejected with `JudgeError`). **This path is tested with `MockProvider` only —
+> no real Claude call.** **When no judge provider is supplied (the default, including the
+> mock CLI), the Judge uses the existing deterministic/offline scoring** — disclosed in
+> `FinalJudgment.limitations`. **Mock mode remains the default. No real Claude-backed
+> judgment or evidence-backed debate has been executed** — `ddgs` not installed, Claude
+> login not verified. Plan: [`docs/REAL_RUN_PLAN.md`](docs/REAL_RUN_PLAN.md).
 >
 > **Status: early development (Phase 6.4 — project-local prompt templates).**
 > **Project-local prompt templates** for the Judge/Pro/Con agents and the

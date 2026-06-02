@@ -62,7 +62,7 @@ class DebateRunner:
         self._cost.start()
         try:
             self._run_rounds(session_id, turns_per_side, retry_cap, store, messages)
-            judgment = self._judge.judge(session_id, tie_break_priority)
+            judgment = self._judge.judge(session_id, tie_break_priority, messages)
         except (ProviderError, WatchdogError, GatekeeperError, ProtocolFailure) as exc:
             status = RunStatus.FAILED_PROTOCOL
             errors.append(f"{type(exc).__name__}: {exc}")

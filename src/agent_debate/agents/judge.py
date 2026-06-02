@@ -1,11 +1,11 @@
-"""JudgeAgent (Phase 6.2c / 6.5).
+"""JudgeAgent (Phase 6.2c / 6.5 / 6.6).
 
-Validates each turn via ResponseValidator (structural + evidence) and applies
-DETERMINISTIC offline checks for agreement collapse / off-side drift (marker-based
-stand-ins — NOT real semantic analysis). Holds the project-local regeneration /
-final-judgment / judge templates and exposes render helpers for them. Final scoring is
-still **deterministic/offline** (fixed scores + configured tie-break) — disclosed in
-`FinalJudgment.limitations`. A real, content-derived Judge is future work.
+Validates turns via ResponseValidator + DETERMINISTIC offline collapse/drift markers.
+`judge()` is **deterministic by default** (fixed scores + configured tie-break). When a
+`judge_provider` is supplied it instead renders the final-judgment prompt and asks the
+provider for a JSON judgment, which is parsed/validated (exactly one winner, no tie,
+0-5 scores). Tests use MockProvider only — **no real Claude call**. The mode used is
+disclosed in `FinalJudgment.limitations`.
 """
 
 from __future__ import annotations
@@ -16,14 +16,16 @@ from agent_debate.evidence.store import EvidenceStore
 from agent_debate.prompts.templates import render
 from agent_debate.protocol.enums import FailureReason
 from agent_debate.protocol.models import FinalJudgment
+from agent_debate.providers.base import ProviderAdapter
 from agent_debate.results import tie_breaker
-from agent_debate.results.scoring import build_score
+from agent_debate.results.scoring import DIMENSIONS, build_score, parse_judgment, scores_from_data
 from agent_debate.validation.response_validator import ResponseValidator
 from agent_debate.validation.result import ValidationResult, fail
 
 AGREEMENT_MARKERS = ("i agree with the opponent", "i concede", "you are right")
 DRIFT_MARKERS = ("i will now argue the opposing side", "i switch sides")
 CREATED_AT = "2026-01-01T00:00:00Z"
+DEFAULT_TOPIC = "Should universities require AI coding agents in software engineering courses?"
 DEFAULT_REGEN = (
     "Your previous output violated the protocol:\n{validation_errors}\n"
     "Return corrected JSON only; keep your assigned role and side."
@@ -39,26 +41,23 @@ class JudgeAgent:
         regeneration_template: str = DEFAULT_REGEN,
         final_template: str = DEFAULT_FINAL,
         judge_template: str = "",
+        topic: str = DEFAULT_TOPIC,
+        judge_provider: ProviderAdapter | None = None,
     ) -> None:
         self._validator = ResponseValidator(child_word_limit)
         self._regeneration_template = regeneration_template
         self._final_template = final_template
         self._judge_template = judge_template
+        self._topic = topic
+        self._judge_provider = judge_provider
 
     def regeneration_prompt(self, validation_errors: str) -> str:
-        """Render the project-local regeneration request for a rejected turn."""
         return render(self._regeneration_template, validation_errors=validation_errors)
 
     def final_instructions(self) -> str:
-        """Render the project-local final-judgment instructions."""
         return render(self._final_template)
 
     def judge_instructions(self, *, topic: str) -> str:
-        """Render the project-local Judge moderation/review instructions.
-
-        Rendered text only — this does NOT call a provider/LLM and does not change the
-        deterministic offline scoring used by `judge()`.
-        """
         return render(self._judge_template, topic=topic)
 
     def review(self, message: dict[str, Any], store: EvidenceStore) -> ValidationResult:
@@ -73,7 +72,17 @@ class JudgeAgent:
             return fail(mid, FailureReason.OFF_SIDE_DRIFT, "agent argued the wrong side")
         return structural
 
-    def judge(self, session_id: str, priority: list[str]) -> FinalJudgment:
+    def judge(
+        self,
+        session_id: str,
+        priority: list[str],
+        messages: list[dict[str, Any]] | None = None,
+    ) -> FinalJudgment:
+        if self._judge_provider is None:
+            return self._deterministic(session_id, priority)
+        return self._provider_backed(session_id, messages or [])
+
+    def _deterministic(self, session_id: str, priority: list[str]) -> FinalJudgment:
         pro = build_score(4, 4, 4, 4, 4, 4)
         con = build_score(4, 4, 4, 4, 4, 4)
         outcome = tie_breaker.decide(pro, con, priority)
@@ -90,4 +99,33 @@ class JudgeAgent:
             reasoning="Both sides argued within the rules; see per-dimension scores.",
             limitations=limitations,
             created_at=CREATED_AT,
+        )
+
+    def _provider_backed(self, session_id: str, messages: list[dict[str, Any]]) -> FinalJudgment:
+        assert self._judge_provider is not None
+        data = parse_judgment(self._judge_provider.generate(self._final_prompt(messages)))
+        return FinalJudgment(
+            session_id=session_id,
+            winner_role=str(data["winner_role"]),
+            loser_role=str(data["loser_role"]),
+            scores=scores_from_data(data.get("scores")),
+            tie_break_used=bool(data.get("tie_break_used", False)),
+            tie_break_reason=data.get("tie_break_reason"),
+            reasoning=str(data["reasoning"]),
+            limitations="Provider-backed final judgment (mock-tested; no real Claude run yet).",
+            created_at=CREATED_AT,
+        )
+
+    def _final_prompt(self, messages: list[dict[str, Any]]) -> str:
+        turns = [f"{m.get('sender_role')}: {str(m.get('argument', ''))[:80]}" for m in messages]
+        summary = "; ".join(turns) if turns else "no turns recorded"
+        return "\n".join(
+            [
+                render(self._final_template),
+                f"Topic: {self._topic}",
+                "Rubric dimensions (0-5): " + ", ".join(DIMENSIONS),
+                "Pick exactly one winner (pro|con); no tie; disclose technical tie-break if used.",
+                f"Transcript summary: {summary}",
+                "Return ONE JSON object: winner_role, loser_role, reasoning, optional scores.",
+            ]
         )
