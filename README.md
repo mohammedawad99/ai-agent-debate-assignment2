@@ -4,12 +4,16 @@ A Python project **designed to orchestrate** a structured, supervised debate bet
 AI agents (**Pro** and **Con**) moderated by a **Parent/Judge** agent that will route
 every message, enforce the rules, and declare a single winner.
 
-> **Status: early development (Phase 7.0 — real-run preflight plan).**
-> A controlled **real-run plan** now exists in [`docs/REAL_RUN_PLAN.md`](docs/REAL_RUN_PLAN.md)
-> (preflight checklist, exact planned command, output/artifact layout, safety + rollback
-> rules). **The real evidence-backed debate has NOT been executed** — no Claude prompt
-> has been sent, no web search performed, and `ddgs` is not yet installed. Mock mode
-> remains the default and the only path exercised so far.
+> **Status: early development (Phase 6.5 — project-local prompts wired into runtime).**
+> The project-local **Pro/Con prompt templates are now rendered and sent to the
+> provider** at run time (the Judge also holds renderable regeneration/final-judgment
+> templates), so a future real run uses meaningful local prompts instead of a minimal
+> hardcoded string. **Mock mode remains the default** (mocks ignore the prompt, so
+> offline behavior is unchanged). **The Judge's final scoring is still deterministic/
+> offline** (fixed scores + configured tie-break — disclosed in `FinalJudgment.limitations`),
+> **not** content-derived persuasiveness. **No real evidence-backed debate has been
+> executed** — no Claude prompt sent, no web search, `ddgs` not installed. A controlled
+> real-run plan is in [`docs/REAL_RUN_PLAN.md`](docs/REAL_RUN_PLAN.md).
 >
 > **Status: early development (Phase 6.4 — project-local prompt templates).**
 > **Project-local prompt templates** for the Judge/Pro/Con agents and the

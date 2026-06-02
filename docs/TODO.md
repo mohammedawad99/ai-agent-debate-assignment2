@@ -213,8 +213,18 @@ gate is **not** unlocked. "Created" ≠ "Reviewed."
 - **No behavior change** to DebateRunner/agents (prompts not yet wired into `produce()`); **no real Claude/web**; mock stays default
 - [ ] **Human review** → **ChatGPT approval** → **commit** (Phase 6.4)
 
-### Phase 6.5+ / real-run prep (later)
-- [ ] (Recommended) wire prompt rendering into agents for real mode (see `docs/REAL_RUN_PLAN.md` §8); declare `ddgs` optional extra
+### Phase 6.5 — Prompt wiring & real-run readiness *(created; review/commit pending)*
+- [x] `agents/base.py` *(`DebateAgent.produce` renders the project-local Pro/Con template + per-turn context — topic/role/claim_id/opponent_claim_id/evidence_refs/JSON — and sends it to the provider)*
+- [x] `agents/judge.py` *(JudgeAgent holds regeneration/final/judge templates; `regeneration_prompt()` + `final_instructions()` render them; scoring stays deterministic, disclosed in `limitations`)*
+- [x] `sdk/service.py` *(loads templates + topic from config and wires them into agents/Judge; `run_mock_debate` behavior unchanged)*
+- [x] Tests: Pro/Con send rendered local prompt (spy provider), Judge renders local protocol templates; existing offline mock debate/CLI unchanged
+- **Resolved gap:** Pro/Con argument prompts now wired into runtime (REAL_RUN_PLAN §8 updated)
+- **Remaining gap (honest):** Judge final scoring still deterministic/offline (not content-derived); collapse/drift still marker-based; `ddgs` not installed; Claude login unverified
+- **No real Claude/web call; mock stays default**
+- [ ] **Human review** → **ChatGPT approval** → **commit** (Phase 6.5)
+
+### Real-run prep (later)
+- [ ] (Optional) content-aware Judge scoring; declare `ddgs` optional extra
 **Exit criteria:** All tests green; gates pass; no hardcoded params; **real evidence-backed run is Phase 7** (controlled, manual).
 
 ### Phase 7.0 — Real run preflight plan *(created; review/commit pending — NO real run executed)*

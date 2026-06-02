@@ -84,20 +84,27 @@ uv run agent-debate run \
 4. If a config change is needed (e.g. timeout), commit it as a normal reviewed change
    before re-running.
 
-## 8. Known limitation to acknowledge before Phase 7 (important / honest)
-The project-local prompt templates (Phase 6.4) are **not yet wired into the agents'
-provider call**. Today `DebateAgent.produce` sends a **minimal** prompt
-(`"Argue as {role}: {claim_id}"`) to the provider and builds the JSON message around the
-returned text; the **Judge scoring is fixed/deterministic** and collapse/off-side checks
-are **marker-based offline stand-ins**. Consequently, a real run executed **now** would
-genuinely exercise: real Claude text generation, real ddgs evidence retrieval,
-parent-mediated routing, regeneration, and artifact writing — but the **arguments would
-be driven by a trivial prompt** and the **winner would be decided by fixed scores +
-configured tie-break**, not by content-derived persuasiveness.
+## 8. Readiness status (updated after Phase 6.5)
+- **RESOLVED — prompt wiring (Pro/Con).** `DebateAgent.produce` now renders the
+  project-local Pro/Con template (filling `{topic}`) and appends a per-turn context block
+  (role/side, `claim_id`, `opponent_claim_id`, available `evidence_refs`, JSON
+  instruction), and **sends that rendered prompt to the provider**. A real run now drives
+  Claude with meaningful local prompts, not the old `"Argue as {role}: {claim_id}"`.
+- **PARTIAL — Judge templates.** The Judge holds the project-local regeneration /
+  final-judgment / judge templates and can render them (`regeneration_prompt`,
+  `final_instructions`, `judge_instructions`). These are available for a future judge-LLM
+  path; the offline runner still uses deterministic review/scoring (no judge-LLM is
+  invoked in either mode).
+- **REMAINS — Judge scoring is deterministic/offline.** Final scoring is fixed scores +
+  configured tie-break (disclosed in `FinalJudgment.limitations`), **not** content-derived
+  persuasiveness. A content-aware Judge is future work.
+- **REMAINS — collapse/off-side detection is marker-based** offline stand-ins.
+- **PENDING — `ddgs` not installed** (`uv add ddgs` before the run) and **Claude CLI
+  login not verified** (verify manually, no prompt).
 
-**Recommendation:** before the meaningful Phase 7 run, add a small **Phase 6.5** to wire
-`prompts/` (judge/pro/con + `{topic}`/`{role}`/`{opponent_claim_id}` rendering) into the
-provider call (and, if feasible, content-aware Judge scoring). Alternatively, proceed
-with a **clearly-labeled "plumbing" real run** that demonstrates the mechanics, and
-document the scoring/prompt limitation in the README. **This decision is made before
-executing, and disclosed honestly in the run's artifacts and README.**
+**Consequence:** a real run now genuinely exercises real Claude argument generation
+(meaningful prompts), real ddgs evidence, parent-mediated routing, regeneration, and
+artifact writing. The **winner is still decided by fixed scores + tie-break**, which
+**must be disclosed** in the run's README/artifacts. Decide before executing whether to
+(a) also add content-aware Judge scoring, or (b) run now as a clearly-labeled
+mechanics/evidence demonstration with the scoring limitation stated.

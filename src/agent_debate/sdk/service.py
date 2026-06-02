@@ -1,9 +1,9 @@
-"""SDK application service (Phase 6.3a / 6.3d).
+"""SDK application service (Phase 6.3a / 6.3d / 6.5).
 
-`run_mock_debate` runs a fully OFFLINE mock debate (the default, unchanged behavior).
-`run_configured_debate` selects provider/search via factories from config — `mock` by
-default; `claude_cli`/`ddgs` are opt-in and only invoked when explicitly selected. No
-real provider/search runs unless configured. Artifacts only when output_dir is given.
+`run_mock_debate` (offline default) and `run_configured_debate` (provider/search via
+factories) both load the project-local prompt templates + topic from config and wire
+them into the agents/Judge, so a real run sends meaningful prompts. Mock providers
+ignore the prompt — offline behavior is unchanged. Artifacts only when output_dir given.
 """
 
 from __future__ import annotations
@@ -16,6 +16,7 @@ from agent_debate.config.loader import load_raw_config
 from agent_debate.orchestration.runner import DebateRunner
 from agent_debate.orchestration.session import DebateSessionResult
 from agent_debate.orchestration.watchdog import Watchdog
+from agent_debate.prompts.loader import load_prompt
 from agent_debate.providers.base import ProviderAdapter
 from agent_debate.providers.factory import build_provider
 from agent_debate.providers.mock_provider import MockProvider
@@ -43,26 +44,48 @@ def _cycle(samples: list[str], count: int) -> list[str]:
     return [samples[index % len(samples)] for index in range(max(count, 1))]
 
 
+def _load_agent_prompts(config_dir: Path | None) -> dict[str, str]:
+    agents = load_raw_config("agents.json", config_dir)
+    debate = load_raw_config("debate.json", config_dir)
+    base = Path(agents["prompts_dir"])
+    roles = agents["roles"]
+    proto = agents["protocol_prompts"]
+    return {
+        "topic": str(debate["topic"]),
+        "pro": load_prompt(roles["pro"]["prompt_template"], base),
+        "con": load_prompt(roles["con"]["prompt_template"], base),
+        "judge": load_prompt(roles["judge"]["prompt_template"], base),
+        "regen": load_prompt(proto["regeneration"], base),
+        "final": load_prompt(proto["final_judgment"], base),
+    }
+
+
 def _run_debate(
     pro_provider: ProviderAdapter,
     con_provider: ProviderAdapter,
     search_tool: SearchTool,
+    prompts: dict[str, str],
     *,
     session_id: str,
     turns_per_side: int,
     output_dir: Path | None,
 ) -> DebateSessionResult:
     cost = CostTracker()
-    pro = ProAgent(pro_provider, search_tool)
-    con = ConAgent(con_provider, search_tool)
+    pro = ProAgent(
+        pro_provider, search_tool, prompt_template=prompts["pro"], topic=prompts["topic"]
+    )
+    con = ConAgent(
+        con_provider, search_tool, prompt_template=prompts["con"], topic=prompts["topic"]
+    )
+    judge = JudgeAgent(
+        DEFAULT_WORD_LIMIT,
+        regeneration_template=prompts["regen"],
+        final_template=prompts["final"],
+        judge_template=prompts["judge"],
+    )
     gatekeeper = Gatekeeper(cost, max_provider_calls=1000, max_search_calls=1000, max_retries=1000)
     runner = DebateRunner(
-        pro,
-        con,
-        JudgeAgent(DEFAULT_WORD_LIMIT),
-        cost_tracker=cost,
-        gatekeeper=gatekeeper,
-        watchdog=Watchdog(),
+        pro, con, judge, cost_tracker=cost, gatekeeper=gatekeeper, watchdog=Watchdog()
     )
     return runner.run(
         session_id=session_id,
@@ -80,12 +103,14 @@ def run_mock_debate(
     output_dir: Path | None = None,
 ) -> DebateSessionResult:
     """Run a fully offline mock debate and return the session result."""
+    prompts = _load_agent_prompts(None)
     pro = MockProvider(_cycle(_MOCK_ARGS, turns_per_side))
     con = MockProvider(_cycle(_MOCK_COUNTER, turns_per_side))
     return _run_debate(
         pro,
         con,
         MockSearchTool(),
+        prompts,
         session_id=session_id,
         turns_per_side=turns_per_side,
         output_dir=output_dir,
@@ -104,11 +129,8 @@ def run_configured_debate(
     con_provider: ProviderAdapter | None = None,
     search_tool: SearchTool | None = None,
 ) -> DebateSessionResult:
-    """Run a debate using provider/search selected via config + factories.
-
-    Overrides (pro_provider/con_provider/search_tool) are for tests; real provider/
-    search run only when explicitly selected (e.g. provider='claude_cli').
-    """
+    """Run a debate with provider/search from config + factories (overrides for tests)."""
+    prompts = _load_agent_prompts(config_dir)
     provider_cfg = {**load_raw_config("providers.json", config_dir), "active": provider}
     search_cfg = {**load_raw_config("search.json", config_dir), "active": search}
     pro_responses = _cycle(_MOCK_ARGS, turns_per_side)
@@ -120,6 +142,7 @@ def run_configured_debate(
         pro,
         con,
         tool,
+        prompts,
         session_id=session_id,
         turns_per_side=turns_per_side,
         output_dir=output_dir,
