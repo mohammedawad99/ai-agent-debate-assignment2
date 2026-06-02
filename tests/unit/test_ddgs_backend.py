@@ -1,7 +1,9 @@
-"""Unit tests: ddgs backend mapping (fake client; no ddgs install, no web)."""
+"""Unit tests: ddgs backend mapping (fake/blocked client; no live web query)."""
 
 from __future__ import annotations
 
+import importlib.util
+import sys
 from typing import Any
 
 import pytest
@@ -24,7 +26,15 @@ def test_maps_ddgs_fields_to_dict_shape() -> None:
     assert result == [{"title": "Title", "url": "https://x.example", "snippet": "Body text."}]
 
 
-def test_missing_ddgs_raises_search_error() -> None:
-    # No client_factory -> lazy import of `ddgs`, which is not installed -> SearchError.
+def test_missing_ddgs_raises_search_error(monkeypatch: pytest.MonkeyPatch) -> None:
+    # Block the lazy `ddgs` import (sys.modules[...] = None -> ImportError) so the clean
+    # SearchError path is exercised WITHOUT building a real client or hitting the web.
+    monkeypatch.setitem(sys.modules, "ddgs", None)
     with pytest.raises(SearchError):
         ddgs_search("q", 1)
+
+
+def test_ddgs_is_installed_import_only() -> None:
+    # Phase 6.8: ddgs is now a declared dependency. Import-availability only — no DDGS()
+    # instance is created and no query is run (live search is reserved for Phase 7).
+    assert importlib.util.find_spec("ddgs") is not None

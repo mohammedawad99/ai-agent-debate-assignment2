@@ -5,10 +5,13 @@ description = "AI Agent Debate System — a parent-mediated, evidence-backed deb
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "MIT" }
-# Runtime dependencies are intentionally empty in the skeleton phase.
-# Real dependencies (e.g. a search adapter such as `ddgs`) are added in later
-# phases, behind the SearchTool/ProviderAdapter abstractions, never hardcoded here.
-dependencies = []
+# Runtime dependencies stay behind the SearchTool/ProviderAdapter abstractions.
+# `ddgs` (Phase 6.8) backs the optional real search path; it is used ONLY when
+# `--search ddgs` is explicitly selected. The default path is fully offline (mocks),
+# and no live search has been executed yet (reserved for the controlled Phase 7 run).
+dependencies = [
+    "ddgs>=9.14.4",
+]
 
 [project.scripts]
 # Placeholder console-script entry point. The CLI is NOT implemented in Phase 4;

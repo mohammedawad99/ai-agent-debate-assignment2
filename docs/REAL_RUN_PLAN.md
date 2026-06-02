@@ -26,9 +26,10 @@ Only the third mode counts as the real run.
       `2.1.159`). **Login NOT verified by this plan** — verify manually (open the Claude
       CLI session) **without** sending a debate prompt. The run aborts cleanly with
       `auth_failure`/`ProviderError` if not logged in.
-- [ ] **ddgs available.** Currently **NOT installed** (`ddgs_available=False`). Install
-      intentionally before the run: `uv add ddgs` (updates `pyproject.toml` + `uv.lock`),
-      then re-run the quality gate.
+- [x] **ddgs available.** **Installed in Phase 6.8** via `uv add ddgs` (declared in
+      `pyproject.toml` + pinned in `uv.lock`); verified `ddgs_available=True` by an
+      import-only check. **No live `ddgs` query has been run yet** — the real search path
+      is exercised only by the controlled Phase 7 run with `--search ddgs`.
 - [ ] **Read-readiness note acknowledged** (see §8 — known limitation).
 - [ ] **Output directory does not already exist** (timestamped; never overwrite).
 
@@ -84,7 +85,7 @@ uv run agent-debate run \
 4. If a config change is needed (e.g. timeout), commit it as a normal reviewed change
    before re-running.
 
-## 8. Readiness status (updated after Phase 6.7)
+## 8. Readiness status (updated after Phase 6.8)
 - **RESOLVED — prompt wiring (Pro/Con).** `DebateAgent.produce` renders the project-local
   Pro/Con template (filling `{topic}`) + per-turn context (role/side, `claim_id`,
   `opponent_claim_id`, available `evidence_refs`, JSON instruction) and **sends it to the
@@ -107,10 +108,12 @@ uv run agent-debate run \
   `--judge-provider claude_cli`; the scoring limitation must still be disclosed if it does
   not.
 - **REMAINS — collapse/off-side detection is marker-based** offline stand-ins.
-- **PENDING — `ddgs` not installed** (`uv add ddgs` before the run) and **Claude CLI
-  login not verified** (verify manually, no prompt). Whether the real run uses
-  `--judge-provider claude_cli` (content-aware scoring) or keeps the deterministic default
-  is now a per-run flag decision, not a code change.
+- **RESOLVED — `ddgs` installed (Phase 6.8).** Declared dependency + pinned lock;
+  import-verified (`ddgs_available=True`). **No live query executed yet.**
+- **PENDING — Claude CLI login not verified** (verify manually, no prompt). Whether the
+  real run uses `--judge-provider claude_cli` (content-aware scoring) or keeps the
+  deterministic default is now a per-run flag decision, not a code change. The first
+  controlled real run remains **2 turns per side**.
 
 **Consequence:** a real run now genuinely exercises real Claude argument generation
 (meaningful prompts), real ddgs evidence, parent-mediated routing, regeneration, and

@@ -90,7 +90,10 @@ default and the safe path.**
   `agent_debate.providers.factory.build_provider`.
 - **Search** (`--search`): `mock` (default → `MockSearchTool`) or `ddgs`
   (→ `RealSearchTool` with the lazy `ddgs_search` backend). Built by
-  `agent_debate.search.factory.build_search`.
+  `agent_debate.search.factory.build_search`. As of Phase 6.8 `ddgs` is an **installed
+  dependency** (`pyproject.toml` + `uv.lock`), but it is imported/used **only when
+  `--search ddgs` is explicitly selected**; the default path stays offline and **no live
+  query has been executed yet** (reserved for the controlled Phase 7 run).
 - **Judge provider** (`--judge-provider`): `none` (default) / `deterministic` → the
   existing **deterministic/offline** Judge (fixed scores + configured tie-break);
   `mock` → an offline `MockProvider` returning a canned valid verdict; `claude_cli` →

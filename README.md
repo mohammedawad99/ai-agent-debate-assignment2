@@ -4,6 +4,16 @@ A Python project **designed to orchestrate** a structured, supervised debate bet
 AI agents (**Pro** and **Con**) moderated by a **Parent/Judge** agent that will route
 every message, enforce the rules, and declare a single winner.
 
+> **Status: early development (Phase 6.8 — `ddgs` dependency added, no live search).**
+> `ddgs` is now a **declared project dependency** (`pyproject.toml` + `uv.lock`) so the
+> Phase 7 controlled run can later exercise the real search path intentionally. **No live
+> search has been executed** — this phase only installs and verifies the dependency
+> (`ddgs_available=True`). `ddgs` is used **only when `--search ddgs` is explicitly
+> selected**; the default search path remains the offline `MockSearchTool`. Mock mode
+> stays the default end-to-end, and **no real Claude/LLM call, web query, or
+> evidence-backed run has been performed.** Plan:
+> [`docs/REAL_RUN_PLAN.md`](docs/REAL_RUN_PLAN.md).
+>
 > **Status: early development (Phase 6.7 — judge-provider selection in SDK/CLI).**
 > The optional provider-backed Judge (6.6) is now **selectable** through the SDK and CLI
 > without changing the safe default. `agent-debate run` gained
@@ -72,8 +82,9 @@ uv run agent-debate run --provider mock --search mock --judge-provider mock --tu
 ```
 Both commands default to the offline mocks (`MockProvider`/`MockSearchTool`) — **no real
 provider, search, network, or LLM**. `--provider claude_cli` / `--search ddgs` are opt-in;
-the CLI prints a clear **REAL MODE** warning, and a concrete `ddgs` backend requires the
-optional `ddgs` package (lazily imported). The Judge defaults to `--judge-provider none`
+the CLI prints a clear **REAL MODE** warning. The concrete `ddgs` backend uses the
+now-installed `ddgs` package (lazily imported; **no live query has been run yet**). The
+Judge defaults to `--judge-provider none`
 (deterministic/offline scoring); `mock` uses an offline canned verdict and `claude_cli`
 builds the provider-backed Judge **only when explicitly selected** (warned, never run at
 construction). **No real run has been performed yet.**

@@ -241,7 +241,16 @@ gate is **not** unlocked. "Created" ≠ "Reviewed."
 - **Improved:** the 6.6 content-aware Judge is now reachable from SDK/CLI without code edits — a per-run flag
 - **Remaining (honest):** no real Claude judgment run; `ddgs` not installed; Claude login unverified
 - **No real Claude/web/subprocess call; mock + deterministic judge stay default**
-- [ ] **Human review** → **ChatGPT approval** → **commit** (Phase 6.7)
+- [x] **Human review** → **ChatGPT approval** → **commit** (Phase 6.7) *(committed `7aa8e2f`)*
+
+### Phase 6.8 — Add `ddgs` dependency without live search *(created/in progress; review/commit pending)*
+- [x] `uv add ddgs` *(declared in `pyproject.toml` as `ddgs>=9.14.4`; pinned in `uv.lock`; comment updated to reflect the real-search-only, explicit-opt-in usage)*
+- [x] Verified import availability only: `ddgs_available=True` *(no `DDGS()` instance, no `.text()` query, no web call)*
+- [x] `tests/unit/test_ddgs_backend.py` *(technical fix: with `ddgs` now importable, the missing-dep test blocks the import via `sys.modules` so the `SearchError` branch stays offline; added an import-availability-only test; mapping test unchanged)*
+- **Improved:** the real `ddgs` search backend is now installable/runnable for the controlled Phase 7 run — selected only via `--search ddgs`
+- **Remaining (honest):** no live `ddgs` query executed; no real Claude judgment run; Claude CLI login unverified; real evidence-backed run is still Phase 7
+- **No live search, no real Claude/LLM call, no web query; mock stays default**
+- [ ] **Human review** → **ChatGPT approval** → **commit** (Phase 6.8)
 
 ### Real-run prep (later)
 - [ ] Decide whether the real run uses the provider-backed Judge; declare `ddgs` optional extra
