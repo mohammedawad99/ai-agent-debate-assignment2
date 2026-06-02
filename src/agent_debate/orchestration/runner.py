@@ -114,6 +114,7 @@ class DebateRunner:
         store: EvidenceStore,
     ) -> dict[str, Any]:
         last_reason = None
+        regeneration: str | None = None
         for attempt in range(retry_cap + 1):
             self._gate.check_provider_call()
             message = agent.produce(
@@ -123,6 +124,7 @@ class DebateRunner:
                 claim_id=claim_id,
                 opponent_claim_id=opponent,
                 store=store,
+                regeneration=regeneration,
             )
             self._cost.record_provider_call(claim_id, str(message["argument"]))
             self._cost.record_search_call()
@@ -132,6 +134,8 @@ class DebateRunner:
                 return message
             last_reason = verdict.first_reason
             if attempt < retry_cap:
+                # Real regeneration: tell the agent WHAT failed so it can correct (e.g. shorten).
+                regeneration = self._judge.regeneration_prompt(str(last_reason))
                 self._cost.record_retry()
                 self._watchdog.record_retry()
         raise ProtocolFailure(f"retry exhausted: {last_reason}")

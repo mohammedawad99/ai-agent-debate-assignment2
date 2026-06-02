@@ -4,6 +4,19 @@ A Python project **designed to orchestrate** a structured, supervised debate bet
 AI agents (**Pro** and **Con**) moderated by a **Parent/Judge** agent that will route
 every message, enforce the rules, and declare a single winner.
 
+> **Status: early development (Phase 7.6 — real regeneration wiring after 2 failed runs).**
+> Two controlled real runs (2 turns/side, real Claude CLI + live `ddgs`) have been
+> attempted and **both failed honestly** on `word_limit_exceeded`. The **second** made
+> partial progress — Pro's opening turn was **accepted** (219 words, 5 evidence refs),
+> proving the Phase 7.4 limit fix works — then Con's opening failed because retries were a
+> no-op (the runner re-sent the identical prompt). Phase 7.6 wires **real regeneration**:
+> on retry the runner now sends a correction prompt carrying the validation error + the
+> configured word limit and asks for a shortened argument text; Pro/Con prompts add a
+> ~180–200-word margin (hard limit stays 220, retry cap stays 2). Verified offline only (a
+> mocked over-limit attempt now recovers on retry). Both failed-run directories are kept as
+> untracked evidence. **No successful real run exists yet, and no winner has been produced
+> by a real debate.** A third real run (fresh timestamped directory) is still pending.
+>
 > **Status: early development (Phase 7.4 — first real run attempted & failed; fix applied).**
 > A first controlled real run (2 turns/side, real Claude CLI + live `ddgs`) was executed
 > and **failed honestly**: `failed_protocol — retry exhausted: word_limit_exceeded` (3

@@ -88,7 +88,7 @@ uv run agent-debate run \
 4. If a config change is needed (e.g. timeout), commit it as a normal reviewed change
    before re-running.
 
-## 8. Readiness status (updated after Phase 7.4)
+## 8. Readiness status (updated after Phase 7.6)
 - **RESOLVED — prompt wiring (Pro/Con).** `DebateAgent.produce` renders the project-local
   Pro/Con template (filling `{topic}`) + per-turn context (role/side, `claim_id`,
   `opponent_claim_id`, available `evidence_refs`, JSON instruction) and **sends it to the
@@ -133,9 +133,26 @@ uv run agent-debate run \
   configured limit** and ask for **argument text only** (no JSON wrapper); **retry cap
   unchanged**. The provider-backed Judge still outputs JSON (correct — the Judge path
   parses JSON). Tested offline only; **no real Claude/ddgs call in this phase**.
-- **PENDING — a second controlled real run.** Not yet executed. It **must use a fresh
+- **ATTEMPTED & FAILED HONESTLY (Phase 7.5) — second controlled real run.**
+  `results/real_run_20260602_1912/` (2 turns/side, same flags) made **partial progress**:
+  Pro's opening turn was **accepted** (`word_count: 219`, 5 evidence refs) — proving the
+  7.4 fix works — but Con's opening then failed `word_limit_exceeded` after 1 attempt + 2
+  retries (4 Claude calls, 4 ddgs searches, ~82 s, no winner). Preserved as evidence;
+  nothing fabricated.
+- **FIX APPLIED (Phase 7.6) — real regeneration wiring + margin instruction.** Evidence
+  showed retries were a no-op (runner re-sent the identical prompt), so Con never got to
+  shorten. Fix: on retry the runner now builds `JudgeAgent.regeneration_prompt(reason)` and
+  passes it into `agent.produce(..., regeneration=...)`, so the retry prompt includes the
+  **validation error** (e.g. `word_limit_exceeded`) and the **configured word limit** and
+  asks for a corrected, shortened **argument text only** (no JSON). Pro/Con prompts also add
+  a **margin instruction** (aim ~180–200 words; hard limit stays 220). `retry_cap`
+  unchanged (2); `child_turn_max_words` unchanged (220). Tested offline only — a mocked
+  over-limit first attempt now recovers on a shorter retry; **no real Claude/ddgs call in
+  this phase**.
+- **PENDING — a third controlled real run.** Not yet executed. It **must use a fresh
   timestamped directory** (e.g. `results/real_run_YYYYMMDD_HHMM`) and **must not reuse or
-  overwrite `results/real_run_20260602_1837/`**. Still 2 turns/side first.
+  overwrite** `results/real_run_20260602_1837/` or `results/real_run_20260602_1912/`.
+  Still 2 turns/side first.
 
 **Consequence:** a real run now genuinely exercises real Claude argument generation
 (meaningful prompts), real ddgs evidence, parent-mediated routing, regeneration, and

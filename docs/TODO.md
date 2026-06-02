@@ -287,7 +287,21 @@ gate is **not** unlocked. "Created" ≠ "Reviewed."
 - [x] Tests: provider-received Pro/Con prompts include the configured limit; prompts no longer instruct full JSON; regeneration renders the limit; mock-run unchanged
 - **No real Claude/LLM call; no live ddgs/web search; failed-run artifacts untouched/uncommitted**
 - **Remaining (honest):** regeneration is still a no-op in the runner (separate later fix); second real run not yet executed
-- [ ] **Human review** → **ChatGPT approval** → **commit** (Phase 7.4)
+- [x] **Human review** → **ChatGPT approval** → **commit** (Phase 7.4) *(committed `52cb68a`)*
+
+### Phase 7.5 — Second controlled real run *(ATTEMPTED; FAILED HONESTLY — partial progress)*
+- [x] Executed (approved) the same 2-turn command into a fresh dir `results/real_run_20260602_1912`
+- **Outcome:** `failed_protocol — retry exhausted: word_limit_exceeded`, but **partial progress**: Pro opening **accepted** (`word_count: 219`, 5 evidence refs) — 7.4 fix works — then Con opening failed after 1 + 2 retries (4 Claude calls, 4 ddgs searches, ~82 s, no winner). Evidence preserved, untracked.
+- **Diagnosis:** retries were a no-op (runner re-sent the identical prompt), so Con never got to shorten.
+
+### Phase 7.6 — Real regeneration wiring *(created/in progress; review/commit pending — NO real run)*
+- [x] `runner.py` — on retry, build `JudgeAgent.regeneration_prompt(reason)` and pass it into `agent.produce(..., regeneration=...)`; `retry_cap` unchanged; failure-on-exhaustion preserved
+- [x] `base.py` — `produce`/`_build_prompt` accept optional `regeneration`; first attempt unchanged; retry appends a "Correction required" block (validation error + word limit, argument text only, no JSON)
+- [x] `prompts/agents/pro.md`, `con.md` — margin instruction (aim ~180–200 words; hard limit stays {word_limit}=220)
+- [x] Tests: runner retry sends a CHANGED, error-aware prompt (contains `word_limit_exceeded` + the limit, no JSON); a mocked over-limit first attempt recovers on a shorter retry; retry exhaustion still fails; mock-run/configured-mock unchanged
+- **No real Claude/LLM call; no live ddgs/web search; both failed-run dirs untouched/uncommitted**
+- **Remaining (honest):** `child_turn_max_words` unchanged (220); third real run not yet executed
+- [ ] **Human review** → **ChatGPT approval** → **commit** (Phase 7.6)
 
 ---
 

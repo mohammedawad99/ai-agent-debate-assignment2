@@ -18,6 +18,7 @@ Topic: **{topic}**
 
 ## Output format
 - Return **only your argument text** — concise, focused prose for this one turn.
-- **Stay at or under {word_limit} words.** Longer answers are rejected by validation.
+- The **hard limit is {word_limit} words**; longer answers are rejected by validation.
+  **Aim for about 180–200 words** to leave a safety margin — do not write up to the edge.
 - Do **not** add a preamble, headings, or any wrapper. The orchestration places your
   text into the structured debate **protocol** message for you.

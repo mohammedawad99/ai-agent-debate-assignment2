@@ -51,12 +51,13 @@ class DebateAgent:
         claim_id: str,
         opponent_claim_id: str | None,
         store: EvidenceStore,
+        regeneration: str | None = None,
     ) -> dict[str, Any]:
         records = self._search.search(claim_id, session_id=session_id, claim_id=claim_id)
         for record in records:
             store.add(record)
         evidence_refs = [r.evidence_id for r in records]
-        prompt = self._build_prompt(claim_id, opponent_claim_id, evidence_refs)
+        prompt = self._build_prompt(claim_id, opponent_claim_id, evidence_refs, regeneration)
         argument = self._provider.generate(prompt)
         turn_type = "opening_argument" if opponent_claim_id is None else "rebuttal"
         message: dict[str, Any] = {
@@ -80,7 +81,11 @@ class DebateAgent:
         return message
 
     def _build_prompt(
-        self, claim_id: str, opponent_claim_id: str | None, evidence_refs: list[str]
+        self,
+        claim_id: str,
+        opponent_claim_id: str | None,
+        evidence_refs: list[str],
+        regeneration: str | None = None,
     ) -> str:
         base = render(self._prompt_template, topic=self._topic, word_limit=str(self._word_limit))
         lines = [
@@ -96,4 +101,7 @@ class DebateAgent:
         lines.append(f"- evidence_refs available: {available}")
         lines.append(f"- hard limit: at most {self._word_limit} words.")
         lines.append("Reply with ONLY your argument text (plain prose, no preamble).")
+        if regeneration:
+            # Retry: append the Judge's correction request (validation errors + word limit).
+            lines.extend(["", "## Correction required", regeneration])
         return "\n".join(lines)
