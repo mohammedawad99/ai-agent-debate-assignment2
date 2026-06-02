@@ -28,6 +28,11 @@ def _build_parser() -> argparse.ArgumentParser:
     run = sub.add_parser("run", help="Run a debate with selected provider/search.")
     run.add_argument("--provider", choices=["mock", "claude_cli"], default="mock")
     run.add_argument("--search", choices=["mock", "ddgs"], default="mock")
+    run.add_argument(
+        "--judge-provider",
+        choices=["none", "deterministic", "mock", "claude_cli"],
+        default="none",
+    )
     run.add_argument("--turns-per-side", type=int, default=2)
     run.add_argument("--session-id", default="configured")
     run.add_argument("--output-dir", default=None, help="If set, write artifacts here.")
@@ -56,15 +61,20 @@ def main(argv: list[str] | None = None) -> int:
         _render(result)
         return 0 if result.is_successful else 1
     if args.command == "run":
-        real = args.provider != "mock" or args.search != "mock"
+        real = (
+            args.provider != "mock" or args.search != "mock" or args.judge_provider == "claude_cli"
+        )
         if real:
             print("AI Agent Debate — REAL MODE: may invoke external tools/web (Claude CLI / ddgs).")
         else:
             print("AI Agent Debate — MOCK MODE (offline; no real provider/search/LLM/web).")
-        print(f"provider: {args.provider} | search: {args.search}")
+        print(f"provider: {args.provider} | search: {args.search} | judge: {args.judge_provider}")
+        if args.judge_provider == "claude_cli":
+            print("WARNING: judge-provider claude_cli may invoke the external Claude CLI.")
         result = run_configured_debate(
             provider=args.provider,
             search=args.search,
+            judge_provider=args.judge_provider,
             session_id=args.session_id,
             turns_per_side=args.turns_per_side,
             output_dir=output_dir,

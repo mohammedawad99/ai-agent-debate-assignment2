@@ -233,6 +233,16 @@ gate is **not** unlocked. "Created" ≠ "Reviewed."
 - **No real Claude/web call; mock stays default**
 - [ ] **Human review** → **ChatGPT approval** → **commit** (Phase 6.6)
 
+### Phase 6.7 — Wire judge-provider selection into SDK/CLI *(created; review/commit pending)*
+- [x] `providers/factory.py` *(`build_judge_provider(name, provider_config, *, override)` → `None` for none/deterministic, `MockProvider([canned verdict])` for mock, `build_provider(active=claude_cli)` for claude_cli, `ProviderConfigError` otherwise; never executes a provider)*
+- [x] `sdk/service.py` *(`run_configured_debate` gains `judge_provider="none"` + `judge_provider_override`; builds the judge via factory and threads it into `JudgeAgent`; deterministic stays default; `run_mock_debate` unchanged)*
+- [x] `cli/main.py` *(`run --judge-provider none|deterministic|mock|claude_cli`, default `none`; prints `judge: <name>`; warns + flags REAL MODE for `claude_cli`; passes through to SDK)*
+- [x] Tests: SDK deterministic default, `judge_provider_override`, `judge_provider="mock"`; CLI default prints `judge: none`, `--judge-provider mock` runs offline, `claude_cli` monkeypatched (warns, no real Claude); factory cases incl. override + unsupported; mock-run unchanged
+- **Improved:** the 6.6 content-aware Judge is now reachable from SDK/CLI without code edits — a per-run flag
+- **Remaining (honest):** no real Claude judgment run; `ddgs` not installed; Claude login unverified
+- **No real Claude/web/subprocess call; mock + deterministic judge stay default**
+- [ ] **Human review** → **ChatGPT approval** → **commit** (Phase 6.7)
+
 ### Real-run prep (later)
 - [ ] Decide whether the real run uses the provider-backed Judge; declare `ddgs` optional extra
 **Exit criteria:** All tests green; gates pass; no hardcoded params; **real evidence-backed run is Phase 7** (controlled, manual).

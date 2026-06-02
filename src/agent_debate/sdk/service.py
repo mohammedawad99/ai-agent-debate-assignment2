@@ -1,9 +1,8 @@
-"""SDK application service (Phase 6.3a / 6.3d / 6.5).
+"""SDK application service (Phase 6.3a / 6.3d / 6.5 / 6.6 / 6.7).
 
-`run_mock_debate` (offline default) and `run_configured_debate` (provider/search via
-factories) both load the project-local prompt templates + topic from config and wire
-them into the agents/Judge, so a real run sends meaningful prompts. Mock providers
-ignore the prompt — offline behavior is unchanged. Artifacts only when output_dir given.
+Builds the agents/Judge from config + factories + project-local prompts. Provider /
+search / judge-provider are selectable; defaults are mock/mock/deterministic; mocks
+ignore prompts (offline unchanged). No real provider/search/judge runs unless selected.
 """
 
 from __future__ import annotations
@@ -18,7 +17,7 @@ from agent_debate.orchestration.session import DebateSessionResult
 from agent_debate.orchestration.watchdog import Watchdog
 from agent_debate.prompts.loader import load_prompt
 from agent_debate.providers.base import ProviderAdapter
-from agent_debate.providers.factory import build_provider
+from agent_debate.providers.factory import build_judge_provider, build_provider
 from agent_debate.providers.mock_provider import MockProvider
 from agent_debate.quality.gatekeeper import Gatekeeper
 from agent_debate.results.cost_tracker import CostTracker
@@ -69,24 +68,22 @@ def _run_debate(
     session_id: str,
     turns_per_side: int,
     output_dir: Path | None,
+    judge_provider: ProviderAdapter | None = None,
 ) -> DebateSessionResult:
     cost = CostTracker()
-    pro = ProAgent(
-        pro_provider, search_tool, prompt_template=prompts["pro"], topic=prompts["topic"]
-    )
-    con = ConAgent(
-        con_provider, search_tool, prompt_template=prompts["con"], topic=prompts["topic"]
-    )
+    topic = prompts["topic"]
+    pro = ProAgent(pro_provider, search_tool, prompt_template=prompts["pro"], topic=topic)
+    con = ConAgent(con_provider, search_tool, prompt_template=prompts["con"], topic=topic)
     judge = JudgeAgent(
         DEFAULT_WORD_LIMIT,
         regeneration_template=prompts["regen"],
         final_template=prompts["final"],
         judge_template=prompts["judge"],
+        topic=topic,
+        judge_provider=judge_provider,
     )
-    gatekeeper = Gatekeeper(cost, max_provider_calls=1000, max_search_calls=1000, max_retries=1000)
-    runner = DebateRunner(
-        pro, con, judge, cost_tracker=cost, gatekeeper=gatekeeper, watchdog=Watchdog()
-    )
+    gate = Gatekeeper(cost, max_provider_calls=1000, max_search_calls=1000, max_retries=1000)
+    runner = DebateRunner(pro, con, judge, cost_tracker=cost, gatekeeper=gate, watchdog=Watchdog())
     return runner.run(
         session_id=session_id,
         turns_per_side=turns_per_side,
@@ -121,6 +118,7 @@ def run_configured_debate(
     *,
     provider: str = "mock",
     search: str = "mock",
+    judge_provider: str = "none",
     session_id: str = "configured",
     turns_per_side: int = DEFAULT_TURNS_PER_SIDE,
     output_dir: Path | None = None,
@@ -128,8 +126,9 @@ def run_configured_debate(
     pro_provider: ProviderAdapter | None = None,
     con_provider: ProviderAdapter | None = None,
     search_tool: SearchTool | None = None,
+    judge_provider_override: ProviderAdapter | None = None,
 ) -> DebateSessionResult:
-    """Run a debate with provider/search from config + factories (overrides for tests)."""
+    """Run a debate with provider/search/judge from config + factories (overrides for tests)."""
     prompts = _load_agent_prompts(config_dir)
     provider_cfg = {**load_raw_config("providers.json", config_dir), "active": provider}
     search_cfg = {**load_raw_config("search.json", config_dir), "active": search}
@@ -138,6 +137,7 @@ def run_configured_debate(
     pro = pro_provider or build_provider(provider_cfg, responses=pro_responses)
     con = con_provider or build_provider(provider_cfg, responses=con_responses)
     tool = search_tool or build_search(search_cfg)
+    judge = build_judge_provider(judge_provider, provider_cfg, override=judge_provider_override)
     return _run_debate(
         pro,
         con,
@@ -146,4 +146,5 @@ def run_configured_debate(
         session_id=session_id,
         turns_per_side=turns_per_side,
         output_dir=output_dir,
+        judge_provider=judge,
     )

@@ -91,10 +91,19 @@ default and the safe path.**
 - **Search** (`--search`): `mock` (default → `MockSearchTool`) or `ddgs`
   (→ `RealSearchTool` with the lazy `ddgs_search` backend). Built by
   `agent_debate.search.factory.build_search`.
+- **Judge provider** (`--judge-provider`): `none` (default) / `deterministic` → the
+  existing **deterministic/offline** Judge (fixed scores + configured tie-break);
+  `mock` → an offline `MockProvider` returning a canned valid verdict; `claude_cli` →
+  the provider-backed Judge using the real Claude CLI, built **only when explicitly
+  selected** (the CLI prints an extra warning). Built by
+  `agent_debate.providers.factory.build_judge_provider`, which returns `None` for the
+  deterministic cases so the Judge keeps its safe default.
 
-The SDK `run_configured_debate(provider=..., search=...)` loads `providers.json` /
-`search.json`, overrides `active` with the requested names, and constructs the adapters
-via the factories. **Construction never executes Claude or calls the web.** Selecting
+The SDK `run_configured_debate(provider=..., search=..., judge_provider=...)` loads
+`providers.json` / `search.json`, overrides `active` with the requested names, and
+constructs the adapters via the factories. A `judge_provider_override` argument lets tests
+inject a fake Judge provider without touching config. **Construction never executes Claude
+or calls the web.** Selecting
 `claude_cli`/`ddgs` and *running* would invoke the external tool / require the optional
 `ddgs` package; the CLI prints a clear **REAL MODE** warning. **Normal tests select mock
 or monkeypatch the SDK/factories — no real Claude/web calls occur in the quality gate,

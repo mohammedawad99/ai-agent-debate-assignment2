@@ -50,3 +50,33 @@ def test_configured_run_accepts_overrides() -> None:
         search_tool=MockSearchTool(),
     )
     assert result.is_successful
+
+
+_JUDGE_VERDICT = '{"winner_role": "pro", "loser_role": "con", "reasoning": "Pro clearer."}'
+
+
+def test_judge_default_is_deterministic() -> None:
+    result = run_configured_debate(provider="mock", search="mock", turns_per_side=1)
+    assert result.final_judgment is not None
+    assert "Deterministic offline scoring" in result.final_judgment.limitations
+
+
+def test_judge_provider_override_uses_provider_backed() -> None:
+    result = run_configured_debate(
+        provider="mock",
+        search="mock",
+        turns_per_side=1,
+        judge_provider_override=MockProvider([_JUDGE_VERDICT]),
+    )
+    assert result.final_judgment is not None
+    assert result.final_judgment.winner_role == "pro"
+    assert "Provider-backed" in result.final_judgment.limitations
+
+
+def test_judge_provider_mock_uses_provider_backed() -> None:
+    result = run_configured_debate(
+        provider="mock", search="mock", judge_provider="mock", turns_per_side=1
+    )
+    assert result.final_judgment is not None
+    assert result.final_judgment.winner_role in {"pro", "con"}
+    assert "Provider-backed" in result.final_judgment.limitations

@@ -84,7 +84,7 @@ uv run agent-debate run \
 4. If a config change is needed (e.g. timeout), commit it as a normal reviewed change
    before re-running.
 
-## 8. Readiness status (updated after Phase 6.6)
+## 8. Readiness status (updated after Phase 6.7)
 - **RESOLVED — prompt wiring (Pro/Con).** `DebateAgent.produce` renders the project-local
   Pro/Con template (filling `{topic}`) + per-turn context (role/side, `claim_id`,
   `opponent_claim_id`, available `evidence_refs`, JSON instruction) and **sends it to the
@@ -98,10 +98,19 @@ uv run agent-debate run \
 - **REMAINS (by default) — deterministic/offline scoring.** With **no** judge provider
   (the default, incl. the mock CLI), the Judge uses fixed scores + configured tie-break
   (disclosed in `FinalJudgment.limitations`). The real run may opt into the provider path.
+- **RESOLVED (wiring) — judge provider is now selectable.** `agent-debate run
+  --judge-provider none|deterministic|mock|claude_cli` (default `none`) and the SDK
+  `run_configured_debate(judge_provider=...)` expose the 6.6 path. The deterministic Judge
+  stays the default; `claude_cli` builds the provider-backed Judge **only when explicitly
+  selected** and is never executed at construction. CLI/SDK judge tests monkeypatch the SDK
+  or use mocks — **no real Claude judgment has been run**. The real run may opt into
+  `--judge-provider claude_cli`; the scoring limitation must still be disclosed if it does
+  not.
 - **REMAINS — collapse/off-side detection is marker-based** offline stand-ins.
 - **PENDING — `ddgs` not installed** (`uv add ddgs` before the run) and **Claude CLI
-  login not verified** (verify manually, no prompt). No `judge_provider` is wired into the
-  CLI/SDK yet — a later step decides whether the real run uses the provider-backed Judge.
+  login not verified** (verify manually, no prompt). Whether the real run uses
+  `--judge-provider claude_cli` (content-aware scoring) or keeps the deterministic default
+  is now a per-run flag decision, not a code change.
 
 **Consequence:** a real run now genuinely exercises real Claude argument generation
 (meaningful prompts), real ddgs evidence, parent-mediated routing, regeneration, and

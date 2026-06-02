@@ -39,3 +39,31 @@ def build_provider(
             input_mode=str(spec.get("input_mode", "stdin")),
         )
     raise ProviderConfigError(f"unsupported provider: {name!r}")
+
+
+# A canned, valid final-judgment used when the judge provider is "mock" (tests/dev).
+_MOCK_JUDGMENT = (
+    '{"winner_role": "con", "loser_role": "pro",'
+    ' "reasoning": "Mock judge verdict (deterministic placeholder; not real Claude)."}'
+)
+
+
+def build_judge_provider(
+    name: str | None,
+    provider_config: dict[str, Any],
+    *,
+    override: ProviderAdapter | None = None,
+) -> ProviderAdapter | None:
+    """Build the optional Judge final-judgment provider. None => deterministic Judge.
+
+    `claude_cli` reuses `build_provider`; it is constructed, NOT executed.
+    """
+    if override is not None:
+        return override
+    if name in (None, "none", "deterministic"):
+        return None
+    if name == "mock":
+        return MockProvider([_MOCK_JUDGMENT])
+    if name == "claude_cli":
+        return build_provider({**provider_config, "active": "claude_cli"})
+    raise ProviderConfigError(f"unsupported judge provider: {name!r}")

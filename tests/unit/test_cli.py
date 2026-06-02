@@ -11,6 +11,24 @@ from agent_debate.orchestration.session import DebateSessionResult, RunStatus
 from agent_debate.protocol.models import FinalJudgment
 
 
+def _success(session_id: str = "x") -> DebateSessionResult:
+    return DebateSessionResult(
+        session_id=session_id,
+        status=RunStatus.SUCCESS,
+        final_judgment=FinalJudgment(
+            session_id=session_id,
+            winner_role="con",
+            loser_role="pro",
+            scores={},
+            tie_break_used=True,
+            tie_break_reason="configured_priority",
+            reasoning="r",
+            limitations="l",
+            created_at="t",
+        ),
+    )
+
+
 def test_mock_run_exits_zero(capsys: pytest.CaptureFixture[str]) -> None:
     code = main(["mock-run", "--turns-per-side", "1"])
     assert code == 0
@@ -33,20 +51,7 @@ def test_cli_delegates_to_sdk(monkeypatch: pytest.MonkeyPatch) -> None:
     ) -> DebateSessionResult:
         calls["session_id"] = session_id
         calls["turns_per_side"] = turns_per_side
-        judgment = FinalJudgment(
-            session_id=session_id,
-            winner_role="con",
-            loser_role="pro",
-            scores={},
-            tie_break_used=True,
-            tie_break_reason="configured_priority",
-            reasoning="r",
-            limitations="l",
-            created_at="t",
-        )
-        return DebateSessionResult(
-            session_id=session_id, status=RunStatus.SUCCESS, final_judgment=judgment
-        )
+        return _success(session_id)
 
     monkeypatch.setattr("agent_debate.cli.main.run_mock_debate", fake_run)
     code = main(["mock-run", "--session-id", "abc", "--turns-per-side", "3"])
@@ -80,24 +85,45 @@ def test_run_real_mode_delegates_and_warns(
     def fake_run(*, provider: str, search: str, **_kwargs: object) -> DebateSessionResult:
         calls["provider"] = provider
         calls["search"] = search
-        return DebateSessionResult(
-            session_id="x",
-            status=RunStatus.SUCCESS,
-            final_judgment=FinalJudgment(
-                session_id="x",
-                winner_role="con",
-                loser_role="pro",
-                scores={},
-                tie_break_used=True,
-                tie_break_reason="configured_priority",
-                reasoning="r",
-                limitations="l",
-                created_at="t",
-            ),
-        )
+        return _success()
 
     monkeypatch.setattr("agent_debate.cli.main.run_configured_debate", fake_run)
     code = main(["run", "--provider", "claude_cli", "--search", "ddgs"])
     assert code == 0
     assert calls == {"provider": "claude_cli", "search": "ddgs"}
     assert "REAL MODE" in capsys.readouterr().out
+
+
+def test_run_default_judge_is_none(capsys: pytest.CaptureFixture[str]) -> None:
+    code = main(["run", "--provider", "mock", "--search", "mock", "--turns-per-side", "1"])
+    assert code == 0
+    out = capsys.readouterr().out
+    assert "judge: none" in out
+    assert "WARNING" not in out
+
+
+def test_run_judge_mock_exits_zero(capsys: pytest.CaptureFixture[str]) -> None:
+    args = ["run", "--provider", "mock", "--search", "mock", "--judge-provider", "mock"]
+    code = main([*args, "--turns-per-side", "1"])
+    assert code == 0
+    out = capsys.readouterr().out
+    assert "judge: mock" in out
+    assert "MOCK MODE" in out
+
+
+def test_run_judge_claude_cli_warns_without_real_call(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    calls: dict[str, object] = {}
+
+    def fake_run(*, judge_provider: str, **_kwargs: object) -> DebateSessionResult:
+        calls["judge_provider"] = judge_provider
+        return _success()
+
+    monkeypatch.setattr("agent_debate.cli.main.run_configured_debate", fake_run)
+    code = main(["run", "--provider", "mock", "--search", "mock", "--judge-provider", "claude_cli"])
+    assert code == 0
+    assert calls == {"judge_provider": "claude_cli"}
+    out = capsys.readouterr().out
+    assert "WARNING: judge-provider claude_cli" in out
+    assert "REAL MODE" in out
