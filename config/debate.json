@@ -8,7 +8,7 @@
     "budget_fallback": 5
   },
   "word_limits": {
-    "child_turn_max_words": 160,
+    "child_turn_max_words": 220,
     "judge_decision_max_words": 400
   },
   "retry_cap": 2,

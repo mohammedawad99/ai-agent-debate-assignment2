@@ -75,10 +75,14 @@ def test_agents_do_not_reference_each_other() -> None:
     assert all(pro is not value for value in vars(con).values())
 
 
-def _render_prompt(agent_cls: type[ProAgent | ConAgent], template_file: str) -> str:
+def _render_prompt(
+    agent_cls: type[ProAgent | ConAgent], template_file: str, *, word_limit: int = 205
+) -> str:
     spy = _SpyProvider()
     template = load_prompt(template_file, PROMPTS)
-    agent = agent_cls(spy, MockSearchTool(), prompt_template=template, topic="My Debate Topic")
+    agent = agent_cls(
+        spy, MockSearchTool(), prompt_template=template, topic="Topic X", word_limit=word_limit
+    )
     agent.produce(
         session_id="s1",
         round_index=1,
@@ -90,33 +94,30 @@ def _render_prompt(agent_cls: type[ProAgent | ConAgent], template_file: str) -> 
     return spy.last_prompt
 
 
-def test_pro_prompt_rendered_from_local_template() -> None:
-    prompt = _render_prompt(ProAgent, "agents/pro.md")
-    for term in (
-        "My Debate Topic",
-        "Pro",
-        "evidence_refs",
-        "opponent_claim_id",
-        "JSON",
-        "o1",
-        "c1",
-    ):
-        assert term in prompt
+def test_pro_prompt_includes_limit_and_argument_text_contract() -> None:
+    # Configured limit (205) must reach the prompt; ask for argument text only, not JSON.
+    p = _render_prompt(ProAgent, "agents/pro.md", word_limit=205)
+    assert all(t in p for t in ("Topic X", "Pro", "evidence_refs", "opponent_claim_id"))
+    assert all(t in p for t in ("o1", "c1", "205", "argument text", "protocol"))
+    assert "JSON" not in p
 
 
-def test_con_prompt_rendered_from_local_template() -> None:
-    prompt = _render_prompt(ConAgent, "agents/con.md")
-    for term in ("My Debate Topic", "Con", "evidence_refs", "opponent_claim_id", "JSON", "o1"):
-        assert term in prompt
+def test_con_prompt_includes_limit_and_argument_text_contract() -> None:
+    p = _render_prompt(ConAgent, "agents/con.md", word_limit=205)
+    assert all(t in p for t in ("Topic X", "Con", "evidence_refs", "opponent_claim_id"))
+    assert all(t in p for t in ("o1", "205", "argument text", "protocol"))
+    assert "JSON" not in p
 
 
 def test_judge_renders_local_protocol_templates() -> None:
     regen = load_prompt("protocol/regeneration.md", PROMPTS)
     final = load_prompt("protocol/final_judgment.md", PROMPTS)
-    judge = JudgeAgent(160, regeneration_template=regen, final_template=final)
+    judge = JudgeAgent(175, regeneration_template=regen, final_template=final)
     rendered = judge.regeneration_prompt("missing evidence; wrong side")
     assert "missing evidence; wrong side" in rendered
-    assert "corrected JSON" in rendered
+    assert "argument text" in rendered
+    assert "175" in rendered  # configured limit rendered into the regeneration prompt
+    assert "JSON" not in rendered
     instructions = judge.final_instructions()
     assert "rubric" in instructions
     assert "no tie" in instructions
@@ -127,12 +128,5 @@ def test_judge_instructions_render_local_judge_template() -> None:
     judge = JudgeAgent(160, judge_template=judge_t)
     text = judge.judge_instructions(topic="My Debate Topic")
     assert "My Debate Topic" in text
-    for term in (
-        "JSON",
-        "evidence_refs",
-        "opponent_claim_id",
-        "exactly one winner",
-        "tie is not allowed",
-        "untrusted",
-    ):
-        assert term in text
+    assert all(t in text for t in ("JSON", "evidence_refs", "opponent_claim_id"))
+    assert all(t in text for t in ("exactly one winner", "tie is not allowed", "untrusted"))

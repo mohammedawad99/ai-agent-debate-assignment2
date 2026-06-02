@@ -1,9 +1,4 @@
-"""SDK application service (Phase 6.3a / 6.3d / 6.5 / 6.6 / 6.7).
-
-Builds the agents/Judge from config + factories + project-local prompts. Provider /
-search / judge-provider are selectable; defaults are mock/mock/deterministic; mocks
-ignore prompts (offline unchanged). No real provider/search/judge runs unless selected.
-"""
+"""SDK service: build agents/Judge from config, factories, prompts (mock default)."""
 
 from __future__ import annotations
 
@@ -27,7 +22,6 @@ from agent_debate.search.mock_search import MockSearchTool
 
 DEFAULT_TURNS_PER_SIDE = 2
 DEFAULT_RETRY_CAP = 2
-DEFAULT_WORD_LIMIT = 160
 DEFAULT_TIE_BREAK_PRIORITY = ["con", "pro"]
 _MOCK_ARGS = [
     "AI coding agents build industry-relevant skills students will use.",
@@ -51,6 +45,7 @@ def _load_agent_prompts(config_dir: Path | None) -> dict[str, str]:
     proto = agents["protocol_prompts"]
     return {
         "topic": str(debate["topic"]),
+        "word_limit": str(debate["word_limits"]["child_turn_max_words"]),
         "pro": load_prompt(roles["pro"]["prompt_template"], base),
         "con": load_prompt(roles["con"]["prompt_template"], base),
         "judge": load_prompt(roles["judge"]["prompt_template"], base),
@@ -72,10 +67,15 @@ def _run_debate(
 ) -> DebateSessionResult:
     cost = CostTracker()
     topic = prompts["topic"]
-    pro = ProAgent(pro_provider, search_tool, prompt_template=prompts["pro"], topic=topic)
-    con = ConAgent(con_provider, search_tool, prompt_template=prompts["con"], topic=topic)
+    wl = int(prompts["word_limit"])
+    pro = ProAgent(
+        pro_provider, search_tool, prompt_template=prompts["pro"], topic=topic, word_limit=wl
+    )
+    con = ConAgent(
+        con_provider, search_tool, prompt_template=prompts["con"], topic=topic, word_limit=wl
+    )
     judge = JudgeAgent(
-        DEFAULT_WORD_LIMIT,
+        wl,
         regeneration_template=prompts["regen"],
         final_template=prompts["final"],
         judge_template=prompts["judge"],

@@ -4,6 +4,17 @@ A Python project **designed to orchestrate** a structured, supervised debate bet
 AI agents (**Pro** and **Con**) moderated by a **Parent/Judge** agent that will route
 every message, enforce the rules, and declare a single winner.
 
+> **Status: early development (Phase 7.4 — first real run attempted & failed; fix applied).**
+> A first controlled real run (2 turns/side, real Claude CLI + live `ddgs`) was executed
+> and **failed honestly**: `failed_protocol — retry exhausted: word_limit_exceeded` (3
+> Claude calls, 3 ddgs searches, **no winner**). Its partial artifacts are kept as honest
+> evidence under `results/real_run_20260602_1837/` (untracked). **No successful real run
+> exists yet, and no winner has been produced by a real debate.** Phase 7.4 applies the
+> minimal fix: child word limit **160 → 220** (config), and Pro/Con + regeneration prompts
+> now state the configured limit and ask for **argument text only** (the orchestration
+> wraps it into the protocol message; the model is not asked to emit JSON). Retry cap
+> unchanged. A second real run (fresh timestamped directory) is still pending.
+>
 > **Status: early development (Phase 6.8 — `ddgs` dependency added, no live search).**
 > `ddgs` is now a **declared project dependency** (`pyproject.toml` + `uv.lock`) so the
 > Phase 7 controlled run can later exercise the real search path intentionally. **No live
@@ -83,11 +94,11 @@ uv run agent-debate run --provider mock --search mock --judge-provider mock --tu
 Both commands default to the offline mocks (`MockProvider`/`MockSearchTool`) — **no real
 provider, search, network, or LLM**. `--provider claude_cli` / `--search ddgs` are opt-in;
 the CLI prints a clear **REAL MODE** warning. The concrete `ddgs` backend uses the
-now-installed `ddgs` package (lazily imported; **no live query has been run yet**). The
-Judge defaults to `--judge-provider none`
+installed `ddgs` package (lazily imported). The Judge defaults to `--judge-provider none`
 (deterministic/offline scoring); `mock` uses an offline canned verdict and `claude_cli`
 builds the provider-backed Judge **only when explicitly selected** (warned, never run at
-construction). **No real run has been performed yet.**
+construction). **A first real run was attempted and failed honestly (see the Phase 7.4
+status above); no successful real run exists yet.**
 
 ## Planning & design documents
 - [`docs/REQUIREMENTS_AUDIT.md`](docs/REQUIREMENTS_AUDIT.md)

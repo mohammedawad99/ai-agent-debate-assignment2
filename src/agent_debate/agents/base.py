@@ -1,11 +1,12 @@
-"""Base debate agent (Phase 6.2c / 6.5).
+"""Base debate agent (Phase 6.2c / 6.5 / 6.4 fix).
 
-Holds a ProviderAdapter, a SearchTool, and a **project-local prompt template** + topic.
-`produce()` renders the assigned-side prompt (filling `{topic}`) and appends a per-turn
-context block (role/side, claim_id, opponent_claim_id, available evidence_refs, JSON
-instruction), sends that to the provider, and returns a protocol message dict. The agent
-holds **no reference to the opponent** (DR-5). Mocks ignore the prompt, so offline
-behavior is unchanged; a real provider receives the meaningful rendered prompt.
+Holds a ProviderAdapter, a SearchTool, a **project-local prompt template**, the topic,
+and the configured child `word_limit`. `produce()` renders the assigned-side prompt
+(filling `{topic}` and `{word_limit}`) and appends a per-turn context block (role/side,
+claim_id, opponent_claim_id, available evidence_refs, the hard word limit). The model is
+asked for **argument text only** — the orchestration wraps it into the structured
+protocol message (the code never parses model JSON here). The agent holds **no reference
+to the opponent** (DR-5). Mocks ignore the prompt, so offline behavior is unchanged.
 """
 
 from __future__ import annotations
@@ -20,6 +21,7 @@ from agent_debate.search.base import SearchTool
 CREATED_AT = "2026-01-01T00:00:00Z"
 DEFAULT_TOPIC = "Should universities require AI coding agents in software engineering courses?"
 DEFAULT_TEMPLATE = "Argue your assigned side, respond to the opponent, and cite evidence."
+DEFAULT_WORD_LIMIT = 220
 
 
 class DebateAgent:
@@ -32,11 +34,13 @@ class DebateAgent:
         *,
         prompt_template: str = DEFAULT_TEMPLATE,
         topic: str = DEFAULT_TOPIC,
+        word_limit: int = DEFAULT_WORD_LIMIT,
     ) -> None:
         self._provider = provider
         self._search = search
         self._prompt_template = prompt_template
         self._topic = topic
+        self._word_limit = word_limit
 
     def produce(
         self,
@@ -78,7 +82,7 @@ class DebateAgent:
     def _build_prompt(
         self, claim_id: str, opponent_claim_id: str | None, evidence_refs: list[str]
     ) -> str:
-        base = render(self._prompt_template, topic=self._topic)
+        base = render(self._prompt_template, topic=self._topic, word_limit=str(self._word_limit))
         lines = [
             base,
             "",
@@ -90,5 +94,6 @@ class DebateAgent:
             lines.append(f"- opponent_claim_id to reference: {opponent_claim_id}")
         available = ", ".join(evidence_refs) if evidence_refs else "none"
         lines.append(f"- evidence_refs available: {available}")
-        lines.append("Reply with exactly one JSON debate message.")
+        lines.append(f"- hard limit: at most {self._word_limit} words.")
+        lines.append("Reply with ONLY your argument text (plain prose, no preamble).")
         return "\n".join(lines)

@@ -48,18 +48,23 @@ def test_pro_and_con_prompts_have_required_terms() -> None:
     pro = load_prompt("agents/pro.md", PROMPTS)
     con = load_prompt("agents/con.md", PROMPTS)
     for text in (pro, con):
-        assert "JSON" in text
+        assert "{word_limit}" in text  # configured limit injected, not a hardcoded number
+        assert "argument text" in text  # argument-text-only contract
+        assert "protocol" in text  # system wraps the text into the structured protocol
         assert "evidence_refs" in text
         assert "opponent_claim_id" in text
         assert "respectful" in text
-        assert "Do not agree" in text
+        assert "Hold your assigned side" in text
+        assert "JSON" not in text  # the model is NOT asked to emit JSON
 
 
 def test_regeneration_prompt_has_required_terms() -> None:
     text = load_prompt("protocol/regeneration.md", PROMPTS)
     assert "validation_errors" in text
-    assert "corrected JSON" in text
+    assert "{word_limit}" in text  # configured limit stated to the model
+    assert "argument text" in text
     assert "assigned role and side" in text
+    assert "JSON" not in text
 
 
 def test_final_judgment_prompt_has_required_terms() -> None:

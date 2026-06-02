@@ -27,8 +27,9 @@ DRIFT_MARKERS = ("i will now argue the opposing side", "i switch sides")
 CREATED_AT = "2026-01-01T00:00:00Z"
 DEFAULT_TOPIC = "Should universities require AI coding agents in software engineering courses?"
 DEFAULT_REGEN = (
-    "Your previous output violated the protocol:\n{validation_errors}\n"
-    "Return corrected JSON only; keep your assigned role and side."
+    "Your previous output violated the validation rules:\n{validation_errors}\n"
+    "Return only a corrected argument text at or under {word_limit} words; "
+    "keep your assigned role and side."
 )
 DEFAULT_FINAL = "Apply the 0-5 rubric and name exactly one winner; no tie."
 
@@ -45,6 +46,7 @@ class JudgeAgent:
         judge_provider: ProviderAdapter | None = None,
     ) -> None:
         self._validator = ResponseValidator(child_word_limit)
+        self._word_limit = child_word_limit
         self._regeneration_template = regeneration_template
         self._final_template = final_template
         self._judge_template = judge_template
@@ -52,7 +54,11 @@ class JudgeAgent:
         self._judge_provider = judge_provider
 
     def regeneration_prompt(self, validation_errors: str) -> str:
-        return render(self._regeneration_template, validation_errors=validation_errors)
+        return render(
+            self._regeneration_template,
+            validation_errors=validation_errors,
+            word_limit=str(self._word_limit),
+        )
 
     def final_instructions(self) -> str:
         return render(self._final_template)

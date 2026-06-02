@@ -272,6 +272,23 @@ gate is **not** unlocked. "Created" ≠ "Reviewed."
 - **Remaining (honest):** the controlled real run itself (debate prompt + live `ddgs` + artifacts) is still Phase 7 proper — NOT executed
 - [ ] **Human review** → **ChatGPT approval** → **commit** (Phase 7.1)
 
+### Phase 7.2 — First controlled real run *(ATTEMPTED; FAILED HONESTLY — evidence preserved)*
+- [x] Executed (approved) `run --provider claude_cli --search ddgs --judge-provider claude_cli --turns-per-side 2 --output-dir results/real_run_20260602_1837`
+- **Outcome:** `failed_protocol — retry exhausted: word_limit_exceeded`; 3 real Claude calls, 3 real ddgs searches, 0 accepted turns, no winner, ~155 s. Partial transcript + `error_report.md` + `cost_report.json` kept as honest evidence.
+- **NOT a success:** no winner declared; artifacts left **untracked** (not deleted, not committed yet)
+
+### Phase 7.3 — Failed-run review & fix plan *(diagnosis only; no code change)*
+- [x] Diagnosed root causes: limit never stated to model; prompt↔code JSON contradiction; regeneration re-sends the same prompt; 160 tight. Recommended Option C.
+
+### Phase 7.4 — Word-limit + prompt tuning fix *(created/in progress; review/commit pending — NO real run)*
+- [x] `config/debate.json` child word limit **160 → 220** (moderate; retry cap unchanged)
+- [x] `base.py` / `service.py` thread the **configured** limit into Pro/Con agents + Judge validator (config is source of truth; not hardcoded in prompts)
+- [x] `prompts/agents/pro.md`, `con.md`, `protocol/regeneration.md` — state the limit via `{word_limit}`, ask for **argument text only** (no full-JSON instruction); Judge prompts still use JSON (the Judge parses JSON)
+- [x] Tests: provider-received Pro/Con prompts include the configured limit; prompts no longer instruct full JSON; regeneration renders the limit; mock-run unchanged
+- **No real Claude/LLM call; no live ddgs/web search; failed-run artifacts untouched/uncommitted**
+- **Remaining (honest):** regeneration is still a no-op in the runner (separate later fix); second real run not yet executed
+- [ ] **Human review** → **ChatGPT approval** → **commit** (Phase 7.4)
+
 ---
 
 ## Phase 7 — Real Debate Run *(NOT started — preflight plan in `docs/REAL_RUN_PLAN.md`)*

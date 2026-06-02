@@ -33,8 +33,9 @@ def test_retry_cap_is_two() -> None:
     assert _load("debate.json")["retry_cap"] == 2
 
 
-def test_child_word_limit_is_160() -> None:
-    assert _load("debate.json")["word_limits"]["child_turn_max_words"] == 160
+def test_child_word_limit_is_220() -> None:
+    # Raised 160 -> 220 in Phase 7.4 after the first real run failed on word_limit_exceeded.
+    assert _load("debate.json")["word_limits"]["child_turn_max_words"] == 220
 
 
 def test_judge_word_limit_is_400() -> None:

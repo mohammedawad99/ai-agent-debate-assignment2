@@ -88,7 +88,7 @@ uv run agent-debate run \
 4. If a config change is needed (e.g. timeout), commit it as a normal reviewed change
    before re-running.
 
-## 8. Readiness status (updated after Phase 7.1)
+## 8. Readiness status (updated after Phase 7.4)
 - **RESOLVED — prompt wiring (Pro/Con).** `DebateAgent.produce` renders the project-local
   Pro/Con template (filling `{topic}`) + per-turn context (role/side, `claim_id`,
   `opponent_claim_id`, available `evidence_refs`, JSON instruction) and **sends it to the
@@ -120,8 +120,22 @@ uv run agent-debate run \
   `--judge-provider claude_cli` (content-aware scoring) or keeps the deterministic default
   is a per-run flag decision, not a code change. The first controlled real run remains
   **2 turns per side**.
-- **PENDING — the controlled real run itself has NOT been executed.** No debate prompt,
-  no live `ddgs` query, no artifacts yet (Phase 7 proper).
+- **ATTEMPTED & FAILED HONESTLY (Phase 7.2) — first controlled real run.**
+  `results/real_run_20260602_1837/` (2 turns/side, provider=claude_cli, search=ddgs,
+  judge=claude_cli) ended `failed_protocol — retry exhausted: word_limit_exceeded`:
+  3 real Claude calls, 3 real ddgs searches, 0 accepted turns, no winner, ~155 s. The
+  failure is **genuine and preserved as evidence** (partial transcript + `error_report.md`
+  + `cost_report.json`); nothing was fabricated.
+- **FIX APPLIED (Phase 7.4) — word-limit + prompt tuning.** Root cause: the model was
+  never told the limit, the prompts demanded full JSON while the code wraps raw argument
+  text, and regeneration re-sent effectively the same prompt. Fix: child word limit raised
+  **160 → 220** (config, source of truth); Pro/Con + regeneration prompts now **state the
+  configured limit** and ask for **argument text only** (no JSON wrapper); **retry cap
+  unchanged**. The provider-backed Judge still outputs JSON (correct — the Judge path
+  parses JSON). Tested offline only; **no real Claude/ddgs call in this phase**.
+- **PENDING — a second controlled real run.** Not yet executed. It **must use a fresh
+  timestamped directory** (e.g. `results/real_run_YYYYMMDD_HHMM`) and **must not reuse or
+  overwrite `results/real_run_20260602_1837/`**. Still 2 turns/side first.
 
 **Consequence:** a real run now genuinely exercises real Claude argument generation
 (meaningful prompts), real ddgs evidence, parent-mediated routing, regeneration, and

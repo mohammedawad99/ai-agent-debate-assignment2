@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parents[2]
 def test_load_real_config() -> None:
     cfg = load_debate_config(ROOT / "config")
     assert cfg.turns_per_side["full"] == 10
-    assert cfg.child_word_limit == 160
+    assert cfg.child_word_limit == 220  # raised 160 -> 220 in Phase 7.4
     assert cfg.judge_word_limit == 400
     assert cfg.retry_cap == 2
     assert cfg.final_tie_break_priority == ["con", "pro"]
