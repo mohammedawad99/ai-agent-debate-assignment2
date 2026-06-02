@@ -88,7 +88,7 @@ uv run agent-debate run \
 4. If a config change is needed (e.g. timeout), commit it as a normal reviewed change
    before re-running.
 
-## 8. Readiness status (updated after Phase 7.10)
+## 8. Readiness status (updated after Phase 7.13)
 - **RESOLVED — prompt wiring (Pro/Con).** `DebateAgent.produce` renders the project-local
   Pro/Con template (filling `{topic}`) + per-turn context (role/side, `claim_id`,
   `opponent_claim_id`, available `evidence_refs`, JSON instruction) and **sends it to the
@@ -180,9 +180,19 @@ uv run agent-debate run \
   ambiguous.** No `eval`. **All prior strict checks remain** (one winner, opposite loser, no
   tie, reasoning required, scores 0–5). `final_judgment.md` also asks Claude not to use a
   code fence. Tested offline only; **no real Claude/ddgs call in this phase**.
-- **PENDING — a fifth controlled real run.** Not yet executed. It **must use a fresh
-  timestamped directory** and **must not reuse or overwrite** any prior run dir
-  (`…_1837/`, `…_1912/`, `…_2058/`, or `…_2037/` if ever created). Still 2 turns/side first.
+- **SUCCEEDED (Phase 7.11) — fifth controlled real run.** `results/real_run_20260602_2125/`:
+  **`status: success`, winner: con.** All 4 child turns accepted (on-side, evidence-cited,
+  ≤220 words, **`retry_count: 0`**, 20 evidence refs); the provider-backed Judge returned a
+  valid verdict that passed strict validation (Phase 7.10 tolerant parsing). Artifacts
+  (`transcript.jsonl`, `transcript.md`, `cost_report.json`; no `error_report.md`) are kept
+  **untracked**; no secrets/PII. This is the **first genuine, evidence-backed real debate
+  with a single content-derived winner** — but it is **2 turns/side only**, and the
+  artifacts do not yet persist the Judge's reasoning/scores.
+- **HONESTY FIX (Phase 7.13).** Corrected a now-stale provider-backed Judge `limitations`
+  string (formerly "mock-tested; no real Claude run yet") to wording accurate for both the
+  mock and real providers. The string never appeared in any artifact. No behavior change.
+- **PENDING — persist Judge reasoning/scores (Phase 7.14)** and a **full 10/side run**
+  (separate, later; must use a fresh timestamped directory, never reusing a prior run dir).
 
 **Consequence:** a real run now genuinely exercises real Claude argument generation
 (meaningful prompts), real ddgs evidence, parent-mediated routing, regeneration, and

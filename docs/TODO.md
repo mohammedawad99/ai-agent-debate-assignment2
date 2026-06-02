@@ -327,7 +327,21 @@ gate is **not** unlocked. "Created" ≠ "Reviewed."
 - [x] New `tests/unit/test_scoring_judgment.py` — direct/fenced(±lang)/prose-with-one-object parse; no-JSON + multiple-objects rejected; invalid winner / tie / empty reasoning / out-of-range scores rejected
 - **No real Claude/LLM call; no live ddgs/web search; all real-run dirs untouched/uncommitted**
 - **Remaining (honest):** tolerant parsing improves robustness but does not guarantee Claude emits a parseable verdict; fifth real run not yet executed
-- [ ] **Human review** → **ChatGPT approval** → **commit** (Phase 7.10)
+- [x] **Human review** → **ChatGPT approval** → **commit** (Phase 7.10) *(committed `9848b75`)*
+
+### Phase 7.11 — Fifth controlled real run *(✅ SUCCESS)*
+- [x] Executed (approved) the 2-turn command into a fresh dir `results/real_run_20260602_2125`
+- **Outcome:** **`status: success`, winner: con.** All 4 child turns accepted (on-side, evidence-cited, ≤220 words, **`retry_count: 0`**, 20 evidence refs, ~100 s); provider-backed Judge returned a valid strictly-validated verdict. Artifacts written (no `error_report.md`); no secrets/PII. First genuine evidence-backed real debate with a content-derived winner. **2 turns/side only.**
+
+### Phase 7.12 — Successful-run review *(read-only; no changes)*
+- [x] Reviewed artifacts; confirmed quality + no PII. Found: stale `limitations` string in `judge.py`; Judge reasoning/scores not persisted in artifacts.
+
+### Phase 7.13 — Stale Judge limitation string fix *(created/in progress; review/commit pending)*
+- [x] `agents/judge.py` — replaced `"Provider-backed final judgment (mock-tested; no real Claude run yet)."` with `"Provider-backed final judgment from the configured Judge provider; verdict parsed and strictly validated."` (accurate for mock + real; the string never appears in artifacts). No behavior change.
+- [x] Existing tests assert only the `"Provider-backed"` substring → still pass (no test edit needed).
+- **No real Claude/LLM call; no live ddgs/web search; all 4 real-run dirs untouched/uncommitted**
+- **Remaining (honest):** artifacts still do NOT persist Judge reasoning/scores (Phase 7.14); full 10/side run NOT done
+- [ ] **Human review** → **ChatGPT approval** → **commit** (Phase 7.13)
 
 ---
 

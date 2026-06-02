@@ -118,7 +118,10 @@ class JudgeAgent:
             tie_break_used=bool(data.get("tie_break_used", False)),
             tie_break_reason=data.get("tie_break_reason"),
             reasoning=str(data["reasoning"]),
-            limitations="Provider-backed final judgment (mock-tested; no real Claude run yet).",
+            limitations=(
+                "Provider-backed final judgment from the configured Judge provider; "
+                "verdict parsed and strictly validated."
+            ),
             created_at=CREATED_AT,
         )
 

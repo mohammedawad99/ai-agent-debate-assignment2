@@ -4,6 +4,17 @@ A Python project **designed to orchestrate** a structured, supervised debate bet
 AI agents (**Pro** and **Con**) moderated by a **Parent/Judge** agent that will route
 every message, enforce the rules, and declare a single winner.
 
+> **Status: early development (Phase 7.13 — first successful 2-turn real run; honesty fix).**
+> The **fifth** controlled real run (2 turns/side, real Claude CLI + live `ddgs`)
+> **succeeded**: `status: success`, **winner: con**, all 4 child turns accepted (on-side,
+> evidence-cited, ≤220 words, **0 retries**, 20 evidence refs), and the provider-backed
+> Judge returned a valid, strictly-validated verdict — a genuine, evidence-backed debate
+> with a single content-derived winner (artifacts kept untracked under
+> `results/real_run_20260602_2125/`). Phase 7.13 corrects a now-stale provider-backed Judge
+> `limitations` string (it had said "no real Claude run yet"); this never appeared in any
+> artifact. **Only a 2-turn run has succeeded — the full 10/side run has NOT been run**, and
+> the artifacts do **not** yet persist the Judge's reasoning/scores (planned Phase 7.14).
+>
 > **Status: early development (Phase 7.10 — tolerant provider-backed Judge JSON parsing).**
 > The **fourth** controlled real run produced a **complete 4-turn debate body** — both Pro
 > and Con turns accepted, on-side, evidence-cited, under the word limit, with **zero
@@ -136,8 +147,10 @@ the CLI prints a clear **REAL MODE** warning. The concrete `ddgs` backend uses t
 installed `ddgs` package (lazily imported). The Judge defaults to `--judge-provider none`
 (deterministic/offline scoring); `mock` uses an offline canned verdict and `claude_cli`
 builds the provider-backed Judge **only when explicitly selected** (warned, never run at
-construction). **A first real run was attempted and failed honestly (see the Phase 7.4
-status above); no successful real run exists yet.**
+construction). **Earlier real runs failed honestly and are documented above. A first
+successful 2-turn real run now exists and is recorded in the Phase 7.13 status above; the
+full 10/side run has not been run yet, and the artifacts do not yet persist the Judge's
+reasoning/scores.**
 
 ## Planning & design documents
 - [`docs/REQUIREMENTS_AUDIT.md`](docs/REQUIREMENTS_AUDIT.md)
