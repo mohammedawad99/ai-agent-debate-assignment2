@@ -214,13 +214,19 @@ gate is **not** unlocked. "Created" ≠ "Reviewed."
 - [ ] **Human review** → **ChatGPT approval** → **commit** (Phase 6.4)
 
 ### Phase 6.5+ / real-run prep (later)
-- [ ] (Optional) wire prompt rendering into agents for real mode; declare `ddgs` optional extra
+- [ ] (Recommended) wire prompt rendering into agents for real mode (see `docs/REAL_RUN_PLAN.md` §8); declare `ddgs` optional extra
 **Exit criteria:** All tests green; gates pass; no hardcoded params; **real evidence-backed run is Phase 7** (controlled, manual).
-**Status:** Phase 6.1 / 6.2a / 6.2b / 6.2c / 6.3a / 6.3b / 6.3c committed; **Phase 6.3d created, review/commit pending** — not yet reviewed/complete. Real provider/search selectable but mock is default; no real Claude/web calls in tests; no committed results/evidence.
+
+### Phase 7.0 — Real run preflight plan *(created; review/commit pending — NO real run executed)*
+- [x] `docs/REAL_RUN_PLAN.md` *(purpose, mode table, preflight checklist, planned command, output dir + artifacts, safety rules, rollback, §8 known prompt-wiring limitation)*
+- [x] Safe preflight checks only *(git clean; ruff/pytest/required-docs/file-lengths/json-configs green; `claude` installed = 2.1.159; `ddgs_available=False`)*
+- **Decision:** first controlled real run = **2 turns/side**, then **10/side** only after it succeeds; each run into a fresh timestamped `results/real_run_*/`
+- **Not done:** real run NOT executed; no Claude prompt sent; no web call; `ddgs` not installed; no results/evidence produced
+- [ ] **Human review** → **ChatGPT approval** → **commit** (Phase 7.0)
 
 ---
 
-## Phase 7 — Real Debate Run
+## Phase 7 — Real Debate Run *(NOT started — preflight plan in `docs/REAL_RUN_PLAN.md`)*
 **Goal:** Execute a genuine, evidence-producing debate.
 - [ ] Choose a topic with real contradiction
 - [ ] Run full debate (≥10/side, or documented 5/side budget mode)

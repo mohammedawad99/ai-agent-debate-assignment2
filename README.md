@@ -4,6 +4,13 @@ A Python project **designed to orchestrate** a structured, supervised debate bet
 AI agents (**Pro** and **Con**) moderated by a **Parent/Judge** agent that will route
 every message, enforce the rules, and declare a single winner.
 
+> **Status: early development (Phase 7.0 — real-run preflight plan).**
+> A controlled **real-run plan** now exists in [`docs/REAL_RUN_PLAN.md`](docs/REAL_RUN_PLAN.md)
+> (preflight checklist, exact planned command, output/artifact layout, safety + rollback
+> rules). **The real evidence-backed debate has NOT been executed** — no Claude prompt
+> has been sent, no web search performed, and `ddgs` is not yet installed. Mock mode
+> remains the default and the only path exercised so far.
+>
 > **Status: early development (Phase 6.4 — project-local prompt templates).**
 > **Project-local prompt templates** for the Judge/Pro/Con agents and the
 > regeneration / final-judgment steps now live under `prompts/` (referenced by
