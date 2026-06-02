@@ -4,6 +4,16 @@ A Python project **designed to orchestrate** a structured, supervised debate bet
 AI agents (**Pro** and **Con**) moderated by a **Parent/Judge** agent that will route
 every message, enforce the rules, and declare a single winner.
 
+> **Status: early development (Phase 7.14 — persist Judge reasoning/scores in artifacts).**
+> On a successful run the writer now persists the Judge's verdict: `transcript.md` gains a
+> **Final Judgment** section (winner, loser, reasoning, per-side 0–5 scores, tie-break,
+> limitations) and a machine-readable **`final_judgment.json`** is written (only when a
+> judgment exists; never on a failed run, and `transcript.jsonl` still streams the accepted
+> child turns). **The existing successful run `results/real_run_20260602_2125/` predates
+> this enhancement and still contains only the winner in `transcript.md`** — a fresh
+> real run is needed to produce final evidence with full Judge reasoning/scores. **No new
+> real run has been performed in this phase; the full 10/side run has NOT been run.**
+>
 > **Status: early development (Phase 7.13 — first successful 2-turn real run; honesty fix).**
 > The **fifth** controlled real run (2 turns/side, real Claude CLI + live `ddgs`)
 > **succeeded**: `status: success`, **winner: con**, all 4 child turns accepted (on-side,

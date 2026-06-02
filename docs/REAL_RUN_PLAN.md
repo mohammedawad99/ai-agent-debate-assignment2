@@ -88,7 +88,7 @@ uv run agent-debate run \
 4. If a config change is needed (e.g. timeout), commit it as a normal reviewed change
    before re-running.
 
-## 8. Readiness status (updated after Phase 7.13)
+## 8. Readiness status (updated after Phase 7.14)
 - **RESOLVED — prompt wiring (Pro/Con).** `DebateAgent.produce` renders the project-local
   Pro/Con template (filling `{topic}`) + per-turn context (role/side, `claim_id`,
   `opponent_claim_id`, available `evidence_refs`, JSON instruction) and **sends it to the
@@ -191,8 +191,16 @@ uv run agent-debate run \
 - **HONESTY FIX (Phase 7.13).** Corrected a now-stale provider-backed Judge `limitations`
   string (formerly "mock-tested; no real Claude run yet") to wording accurate for both the
   mock and real providers. The string never appeared in any artifact. No behavior change.
-- **PENDING — persist Judge reasoning/scores (Phase 7.14)** and a **full 10/side run**
-  (separate, later; must use a fresh timestamped directory, never reusing a prior run dir).
+- **ARTIFACT ENHANCEMENT (Phase 7.14) — persist Judge reasoning/scores.** On a successful
+  run `TranscriptWriter` now adds a **Final Judgment** section to `transcript.md` (winner,
+  loser, reasoning, per-side 0–5 scores, tie-break, limitations) and writes a
+  machine-readable **`final_judgment.json`** (only when a judgment exists; never on a failed
+  run; `transcript.jsonl` unchanged). Verified offline (mock judgment); **no real Claude/ddgs
+  call in this phase**. The existing `results/real_run_20260602_2125/` predates this and
+  still records only the winner.
+- **PENDING — a fresh evidence run + the full 10/side run.** Not yet executed. The next real
+  run (which will produce the richer artifacts) **must use a fresh timestamped directory**,
+  never reusing a prior run dir. 10/side remains a separate, later step.
 
 **Consequence:** a real run now genuinely exercises real Claude argument generation
 (meaningful prompts), real ddgs evidence, parent-mediated routing, regeneration, and

@@ -341,7 +341,14 @@ gate is **not** unlocked. "Created" ≠ "Reviewed."
 - [x] Existing tests assert only the `"Provider-backed"` substring → still pass (no test edit needed).
 - **No real Claude/LLM call; no live ddgs/web search; all 4 real-run dirs untouched/uncommitted**
 - **Remaining (honest):** artifacts still do NOT persist Judge reasoning/scores (Phase 7.14); full 10/side run NOT done
-- [ ] **Human review** → **ChatGPT approval** → **commit** (Phase 7.13)
+- [x] **Human review** → **ChatGPT approval** → **commit** (Phase 7.13) *(committed `896ad56`)*
+
+### Phase 7.14 — Persist Judge reasoning/scores in artifacts *(created/in progress; review/commit pending — NO real run)*
+- [x] `results/transcript_writer.py` — successful run with `final_judgment` adds a **Final Judgment** section to `transcript.md` (winner, loser, reasoning, per-side 0–5 scores, tie-break, limitations) and writes machine-readable **`final_judgment.json`** via `dataclasses.asdict` (only when a judgment exists). `transcript.jsonl` unchanged; failed-run behavior (no `final_judgment.json`, `error_report.md` kept) unchanged.
+- [x] Tests (`test_transcript_writer.py`): success writes `final_judgment.json` with winner/loser/reasoning/scores/limitations; `transcript.md` includes reasoning + winner; failed run writes no `final_judgment.json`; `transcript.jsonl` still streams accepted turns.
+- **No real Claude/LLM call; no live ddgs/web search; all 4 real-run dirs untouched/uncommitted**
+- **Remaining (honest):** the existing `results/real_run_20260602_2125/` predates this and records only the winner — a **fresh** real run is needed to produce richer evidence; full 10/side run NOT done
+- [ ] **Human review** → **ChatGPT approval** → **commit** (Phase 7.14)
 
 ---
 
