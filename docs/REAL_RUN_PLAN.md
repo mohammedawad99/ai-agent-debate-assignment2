@@ -88,7 +88,7 @@ uv run agent-debate run \
 4. If a config change is needed (e.g. timeout), commit it as a normal reviewed change
    before re-running.
 
-## 8. Readiness status (updated after Phase 7.8)
+## 8. Readiness status (updated after Phase 7.10)
 - **RESOLVED — prompt wiring (Pro/Con).** `DebateAgent.produce` renders the project-local
   Pro/Con template (filling `{topic}`) + per-turn context (role/side, `claim_id`,
   `opponent_claim_id`, available `evidence_refs`, JSON instruction) and **sends it to the
@@ -164,10 +164,25 @@ uv run agent-debate run \
   winner**. `final_judgment.md` was hardened to demand exactly one JSON object (no markdown,
   no code fence, no prose, no empty response) — a mitigation, not a guarantee. Tested
   offline only; **no real Claude/ddgs call in this phase**.
-- **PENDING — a fourth controlled real run.** Not yet executed. It **must use a fresh
-  timestamped directory** and **must not reuse or overwrite**
-  `results/real_run_20260602_1837/`, `results/real_run_20260602_1912/`, or
-  `results/real_run_20260602_2037/` (if it is ever created). Still 2 turns/side first.
+- **ATTEMPTED & FAILED GRACEFULLY (Phase 7.9) — fourth controlled real run.**
+  `results/real_run_20260602_2058/`: **all four child turns were accepted** (Pro/Con ×2),
+  substantive, on-side, evidence-cited, under 220 words, **`retry_count: 0`** — the debate
+  body now works end-to-end with real Claude + real ddgs (~145 s). The provider-backed Judge
+  again returned **non-JSON**, but Phase 7.8 handled it **gracefully**: `failed_protocol`,
+  no winner, **all four artifacts written** (incl. `error_report.md`), **no traceback**.
+  Still not a successful run (no winner), but the only remaining blocker is now isolated to
+  Judge JSON formatting.
+- **FIX APPLIED (Phase 7.10) — tolerant provider-backed Judge JSON parsing.**
+  `parse_judgment` now tolerantly **extracts** the verdict before strict validation: direct
+  JSON still works; a ```` ``` ````-fenced object (with or without a `json` language tag) is
+  unwrapped; exactly one JSON object embedded in surrounding prose is extracted via
+  `json.JSONDecoder.raw_decode`. **Zero objects → reject; more than one → reject as
+  ambiguous.** No `eval`. **All prior strict checks remain** (one winner, opposite loser, no
+  tie, reasoning required, scores 0–5). `final_judgment.md` also asks Claude not to use a
+  code fence. Tested offline only; **no real Claude/ddgs call in this phase**.
+- **PENDING — a fifth controlled real run.** Not yet executed. It **must use a fresh
+  timestamped directory** and **must not reuse or overwrite** any prior run dir
+  (`…_1837/`, `…_1912/`, `…_2058/`, or `…_2037/` if ever created). Still 2 turns/side first.
 
 **Consequence:** a real run now genuinely exercises real Claude argument generation
 (meaningful prompts), real ddgs evidence, parent-mediated routing, regeneration, and

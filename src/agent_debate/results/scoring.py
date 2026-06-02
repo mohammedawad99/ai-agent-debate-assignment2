@@ -1,8 +1,7 @@
 """Scoring rubric + provider-judgment parsing (docs/SCORING_AND_VALIDATION.md §7-9).
 
-Rubric: six dimensions on a 0-5 integer scale, equal weight, total = sum (max 30).
-`parse_judgment` safely validates a provider-backed final-judgment JSON object (no eval);
-`scores_from_data` builds JudgeScore objects from it (missing dims default to 3).
+Six 0-5 dimensions, equal weight. `parse_judgment` tolerantly extracts then strictly
+validates a provider final-judgment JSON object (code fence / one object amid prose; no eval).
 """
 
 from __future__ import annotations
@@ -67,12 +66,41 @@ def build_score(
     )
 
 
-def parse_judgment(raw: str) -> dict[str, Any]:
-    """Parse + validate a provider final-judgment JSON object. Raises JudgeError."""
+def _extract_json_object(raw: str) -> Any:
+    """Tolerate a code fence or one JSON object amid prose; reject 0 or >1 (no eval)."""
+    text = raw.strip()
+    if text.startswith("```"):
+        body = text.splitlines()[1:]
+        if body and body[-1].strip() == "```":
+            body = body[:-1]
+        text = "\n".join(body).strip()
     try:
-        data = json.loads(raw)
-    except json.JSONDecodeError as exc:
-        raise JudgeError(f"judge output is not valid JSON: {exc}") from exc
+        return json.loads(text)
+    except json.JSONDecodeError:
+        pass
+    decoder = json.JSONDecoder()
+    found: list[Any] = []
+    i = 0
+    while i < len(text):
+        if text[i] == "{":
+            try:
+                obj, end = decoder.raw_decode(text, i)
+                found.append(obj)
+                i = end
+                continue
+            except json.JSONDecodeError:
+                pass
+        i += 1
+    if not found:
+        raise JudgeError("judge output contains no parseable JSON object")
+    if len(found) > 1:
+        raise JudgeError("judge output is ambiguous (multiple JSON objects)")
+    return found[0]
+
+
+def parse_judgment(raw: str) -> dict[str, Any]:
+    """Parse + validate a provider final-judgment JSON object (tolerant). Raises JudgeError."""
+    data = _extract_json_object(raw)
     if not isinstance(data, dict):
         raise JudgeError("judge output is not a JSON object")
     winner = data.get("winner_role")

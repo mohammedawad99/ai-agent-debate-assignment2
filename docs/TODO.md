@@ -314,7 +314,20 @@ gate is **not** unlocked. "Created" ≠ "Reviewed."
 - [x] Tests: non-JSON judge → failed result (no raise), accepted child turns preserved, `error_report.md` + transcript + cost_report written, no winner; existing success/mock paths unchanged
 - **No real Claude/LLM call; no live ddgs/web search; all three failed-run dirs untouched/uncommitted**
 - **Remaining (honest):** root cause (real Claude returned non-JSON) not eliminated — only made graceful; fourth real run not yet executed
-- [ ] **Human review** → **ChatGPT approval** → **commit** (Phase 7.8)
+- [x] **Human review** → **ChatGPT approval** → **commit** (Phase 7.8) *(committed `6e88d0d`)*
+
+### Phase 7.9 — Fourth controlled real run *(ATTEMPTED; FAILED GRACEFULLY — full debate body produced)*
+- [x] Executed (approved) the same 2-turn command into a fresh dir `results/real_run_20260602_2058`
+- **Outcome (best yet):** **all 4 child turns accepted** (Pro/Con ×2), substantive/on-side/evidence-cited, under 220 words, **`retry_count: 0`**; reached the Judge (~145 s). Judge returned non-JSON → `JudgeError`, handled **gracefully** by Phase 7.8: `failed_protocol`, no winner, **all 4 artifacts written** (incl. `error_report.md`), no traceback.
+- **Validated:** 7.4/7.6 (word limit + regeneration + margin) and 7.8 (graceful Judge failure) all confirmed against real Claude. Sole remaining blocker: Judge verdict not directly parseable JSON.
+
+### Phase 7.10 — Tolerant provider-backed Judge JSON parsing *(created/in progress; review/commit pending — NO real run)*
+- [x] `results/scoring.py` — `parse_judgment` extracts before validating: direct JSON; ```` ``` ````-fenced object (with/without `json` tag); exactly one JSON object amid prose via `JSONDecoder.raw_decode`; 0 → reject, >1 → reject ambiguous; **no eval**; all strict checks retained
+- [x] `prompts/protocol/final_judgment.md` — added "do not wrap the JSON in a code fence" (mitigation, not a guarantee)
+- [x] New `tests/unit/test_scoring_judgment.py` — direct/fenced(±lang)/prose-with-one-object parse; no-JSON + multiple-objects rejected; invalid winner / tie / empty reasoning / out-of-range scores rejected
+- **No real Claude/LLM call; no live ddgs/web search; all real-run dirs untouched/uncommitted**
+- **Remaining (honest):** tolerant parsing improves robustness but does not guarantee Claude emits a parseable verdict; fifth real run not yet executed
+- [ ] **Human review** → **ChatGPT approval** → **commit** (Phase 7.10)
 
 ---
 

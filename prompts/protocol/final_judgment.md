@@ -14,5 +14,6 @@ Produce the final judgment as a **JSON** message.
 ## Output format (strict)
 - Return **exactly one JSON object** and nothing else.
 - **No markdown, no code fence, no prose outside the JSON, no empty response.**
+- **Do not wrap the JSON in a code fence** (no ``` ``` ``` ``` markers).
 - Start the reply with `{` and end with `}`. Include at least `winner_role`,
   `loser_role`, and `reasoning`.
