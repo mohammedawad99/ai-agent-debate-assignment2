@@ -88,7 +88,7 @@ uv run agent-debate run \
 4. If a config change is needed (e.g. timeout), commit it as a normal reviewed change
    before re-running.
 
-## 8. Readiness status (updated after Phase 8.3)
+## 8. Readiness status (updated after Phase 8.4)
 - **RESOLVED — prompt wiring (Pro/Con).** `DebateAgent.produce` renders the project-local
   Pro/Con template (filling `{topic}`) + per-turn context (role/side, `claim_id`,
   `opponent_claim_id`, available `evidence_refs`, JSON instruction) and **sends it to the
@@ -217,8 +217,13 @@ uv run agent-debate run \
   **secondary quick-demo** evidence. The **failed** attempts (`…_1837/`, `…_1912/`, `…_2058/`)
   and the pre-enhancement success (`…_2125/`) remain **untracked audit history**, not
   selected, unless explicitly committed later.
-- **REMAINING — final packaging.** Optional screenshots, final README polish, and
-  doc-block cleanup. Final submission packaging is **not yet complete**.
+- **GIT HYGIENE (Phase 8.4).** `.gitignore` now ignores `results/real_run_*/` (with the two
+  committed evidence runs negated/kept), so the untracked **failed/pre-enhancement** dirs
+  (`…_1837/`, `…_1912/`, `…_2058/`, `…_2125/`) no longer clutter `git status`. They remain
+  **on disk as audit history** (not deleted); tracked evidence is unaffected. README adds a
+  note that the lower status blocks are a historical changelog and the top block is current.
+- **REMAINING — final packaging.** Optional screenshots and final README polish. Final
+  submission packaging is **not yet complete**.
 
 **Consequence:** a real run now genuinely exercises real Claude argument generation
 (meaningful prompts), real ddgs evidence, parent-mediated routing, regeneration, and

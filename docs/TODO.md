@@ -379,7 +379,15 @@ gate is **not** unlocked. "Created" ≠ "Reviewed."
 - [x] Docs updated: README (status + Evidence run primary/secondary), REAL_RUN_PLAN (8.1 success + 8.3 selection), this TODO. Failed/pre-enhancement dirs remain **untracked**, not selected.
 - **No real Claude/LLM call; no live ddgs/web search; artifact files unmodified; nothing committed**
 - **Next step:** review docs → if approved, commit the full10 artifacts (`…_2227_full10/`, 4 explicit paths) + these doc updates. **Project NOT marked done — final packaging (screenshots/polish) still pending.**
-- [ ] **Human review** → **ChatGPT approval** → **commit** (Phase 8.3)
+- [x] **Human review** → **ChatGPT approval** → **commit** (Phase 8.3) *(committed `209433e`)*
+
+### Phase 8.4 — Final packaging hygiene & git cleanliness *(created/in progress; review/commit pending)*
+- [x] `.gitignore` — ignore `results/real_run_*/` (negate/keep the two committed evidence runs) so the untracked failed/pre-enhancement dirs (`…_1837/`, `…_1912/`, `…_2058/`, `…_2125/`) no longer clutter `git status`. Dirs kept **on disk** (not deleted); tracked evidence unaffected. Verified: `git status --ignored` shows the 4 dirs as `!!` ignored; `git ls-files results` still lists the 2 evidence runs + `.gitkeep`.
+- [x] README — top status bumped to 8.4; added a note that the lower status blocks are a historical changelog and the top block is authoritative (primary = full10, secondary = 2203). No stale current-tense "no successful real run" claim outside the dated history.
+- [x] REAL_RUN_PLAN — added Phase 8.4 git-hygiene note; remaining work is optional screenshots + final polish.
+- **No real Claude/LLM call; no live ddgs/web search; no source/config/prompt/test changes; no artifact contents modified; nothing committed**
+- **Remaining:** optional screenshots + final README polish; **project NOT marked done**.
+- [ ] **Human review** → **ChatGPT approval** → **commit** (Phase 8.4)
 
 ---
 

@@ -15,3 +15,12 @@ logs/*.jsonl
 build/
 dist/
 *.egg-info/
+
+# Real-run output dirs are audit artifacts. Ignore historical/unselected run dirs so they
+# do not clutter `git status`. The two committed evidence runs are already tracked (these
+# negations keep their intent explicit; ignore rules never untrack already-tracked files):
+#   results/real_run_20260602_2227_full10/  (primary, full 10/side)
+#   results/real_run_20260602_2203/          (secondary, 2-turn quick demo)
+results/real_run_*/
+!results/real_run_20260602_2203/
+!results/real_run_20260602_2227_full10/
